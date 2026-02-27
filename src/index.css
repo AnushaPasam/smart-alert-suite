@@ -2,95 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 38 100% 98%;
+    --foreground: 220 20% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 20% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 216 38% 47%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 25%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 38 30% 95%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 81 21% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 216 38% 47%;
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 15%;
+    --sidebar-primary: 216 38% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 38 30% 95%;
+    --sidebar-accent-foreground: 220 20% 15%;
     --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 216 38% 47%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Campus-specific tokens */
+    --campus-olive: 81 21% 45%;
+    --campus-olive-light: 81 25% 92%;
+    --campus-blue: 216 38% 47%;
+    --campus-blue-hover: 216 42% 38%;
+    --campus-blue-light: 216 40% 94%;
+    --campus-ivory: 38 100% 98%;
+    --campus-warm-gray: 220 9% 46%;
+    --campus-dark: 220 20% 15%;
+
+    /* Priority colors */
+    --priority-high: 0 72% 51%;
+    --priority-high-bg: 0 72% 95%;
+    --priority-normal: 216 38% 47%;
+    --priority-normal-bg: 216 40% 94%;
+    --priority-low: 81 21% 45%;
+    --priority-low-bg: 81 25% 92%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 20% 15% / 0.04);
+    --shadow-card: 0 1px 3px 0 hsl(220 20% 15% / 0.06), 0 1px 2px -1px hsl(220 20% 15% / 0.06);
+    --shadow-card-hover: 0 4px 12px -2px hsl(220 20% 15% / 0.1), 0 2px 4px -2px hsl(220 20% 15% / 0.06);
+    --shadow-elevated: 0 10px 25px -5px hsl(220 20% 15% / 0.08), 0 4px 6px -4px hsl(220 20% 15% / 0.04);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 220 20% 8%;
+    --foreground: 38 30% 95%;
+    --card: 220 20% 12%;
+    --card-foreground: 38 30% 95%;
+    --popover: 220 20% 12%;
+    --popover-foreground: 38 30% 95%;
+    --primary: 216 50% 60%;
+    --primary-foreground: 220 20% 8%;
+    --secondary: 220 14% 18%;
+    --secondary-foreground: 38 30% 95%;
+    --muted: 220 14% 18%;
+    --muted-foreground: 220 9% 65%;
+    --accent: 81 25% 55%;
+    --accent-foreground: 220 20% 8%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 38 30% 95%;
+    --border: 220 14% 22%;
+    --input: 220 14% 22%;
+    --ring: 216 50% 60%;
+    --sidebar-background: 220 20% 10%;
+    --sidebar-foreground: 38 30% 95%;
+    --sidebar-primary: 216 50% 60%;
+    --sidebar-primary-foreground: 220 20% 8%;
+    --sidebar-accent: 220 14% 18%;
+    --sidebar-accent-foreground: 38 30% 95%;
+    --sidebar-border: 220 14% 22%;
+    --sidebar-ring: 216 50% 60%;
   }
 }
 
@@ -100,6 +105,136 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
+  }
+}
+
+@layer components {
+  .campus-card {
+    @apply bg-card rounded-xl border border-border transition-all duration-200;
+    box-shadow: var(--shadow-card);
+  }
+
+  .campus-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+  }
+
+  .campus-card-static {
+    @apply bg-card rounded-xl border border-border;
+    box-shadow: var(--shadow-card);
+  }
+
+  .campus-section {
+    @apply px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20;
+  }
+
+  .campus-container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .priority-glow-high {
+    box-shadow: 0 0 8px -2px hsl(var(--priority-high) / 0.4);
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+    opacity: 0;
+  }
+
+  .fade-in-up-delay-1 { animation-delay: 0.05s; }
+  .fade-in-up-delay-2 { animation-delay: 0.1s; }
+  .fade-in-up-delay-3 { animation-delay: 0.15s; }
+  .fade-in-up-delay-4 { animation-delay: 0.2s; }
+
+  .stagger-child {
+    opacity: 0;
+    animation: fadeInUp 0.3s ease-out forwards;
+  }
+}
+
+@layer utilities {
+  .text-campus-warm {
+    color: hsl(var(--campus-warm-gray));
+  }
+
+  .bg-campus-ivory {
+    background-color: hsl(var(--campus-ivory));
+  }
+
+  .bg-campus-olive-light {
+    background-color: hsl(var(--campus-olive-light));
+  }
+
+  .bg-campus-blue-light {
+    background-color: hsl(var(--campus-blue-light));
+  }
+
+  .text-campus-olive {
+    color: hsl(var(--campus-olive));
+  }
+
+  .text-campus-blue {
+    color: hsl(var(--campus-blue));
+  }
+
+  .bg-priority-high {
+    background-color: hsl(var(--priority-high-bg));
+    color: hsl(var(--priority-high));
+  }
+
+  .bg-priority-normal {
+    background-color: hsl(var(--priority-normal-bg));
+    color: hsl(var(--priority-normal));
+  }
+
+  .bg-priority-low {
+    background-color: hsl(var(--priority-low-bg));
+    color: hsl(var(--priority-low));
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes subtlePulse {
+  0%, 100% { box-shadow: 0 0 8px -2px hsl(var(--priority-high) / 0.3); }
+  50% { box-shadow: 0 0 12px -2px hsl(var(--priority-high) / 0.5); }
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted-foreground) / 0.06) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+
+.priority-pulse-high {
+  animation: subtlePulse 3s ease-in-out 1;
 }
