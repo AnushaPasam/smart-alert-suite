@@ -2,22 +2,15 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import DarkModeToggle from "@/components/DarkModeToggle";
-import {
-  LayoutDashboard, PlusCircle, List, Tags, BarChart3, User, LogOut, Menu, X, Bell,
-  CheckCircle, ArrowRight,
-} from "lucide-react";
+import { Bell, LayoutDashboard, CheckCircle, BarChart3, User, LogOut, Menu, X } from "lucide-react";
 
 const navItems = [
-  { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Create", path: "/admin/create", icon: PlusCircle },
-  { label: "Manage", path: "/admin/manage", icon: List },
-  { label: "Review Queue", path: "/admin/review-queue", icon: CheckCircle },
-  { label: "Forward Decision", path: "/admin/forward-decision", icon: ArrowRight },
-  { label: "Categories", path: "/admin/categories", icon: Tags },
-  { label: "Analytics", path: "/admin/analytics", icon: BarChart3 },
+  { label: "Dashboard", path: "/principal/dashboard", icon: LayoutDashboard },
+  { label: "Approval Queue", path: "/principal/approval-queue", icon: CheckCircle },
+  { label: "Analytics", path: "/principal/analytics", icon: BarChart3 },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function PrincipalLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,11 +28,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       }`}>
         <div className="p-5 border-b border-border flex items-center justify-between">
-          <Link to="/admin/dashboard" className="flex items-center gap-2">
+          <Link to="/principal/dashboard" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <Bell className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-sm">Admin Panel</span>
+            <span className="font-semibold text-sm">Principal</span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
@@ -61,12 +54,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-3 border-t border-border space-y-1">
-          <Link to="/admin/profile" onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-              location.pathname === "/admin/profile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}>
-            <User className="h-4 w-4" /> Profile
-          </Link>
           <button onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-all duration-150">
             <LogOut className="h-4 w-4" /> Logout
@@ -84,7 +71,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <DarkModeToggle />
             <span className="text-sm text-muted-foreground hidden sm:block">{user?.name}</span>
             <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
-              {user?.name?.charAt(0) || "A"}
+              {user?.name?.charAt(0) || "P"}
             </div>
           </div>
         </header>

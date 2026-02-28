@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
-import { dummyAnnouncements, type Announcement } from "@/data/announcements";
+import { dummyAnnouncements, type Announcement, type AnnouncementStatus, type Comment } from "@/data/announcements";
 
 interface AnnouncementsContextType {
   announcements: Announcement[];
   toggleBookmark: (id: string) => void;
   markAsRead: (id: string) => void;
-  addAnnouncement: (a: Omit<Announcement, "id" | "views" | "isRead" | "isBookmarked" | "createdAt">) => void;
+  addAnnouncement: (a: Omit<Announcement, "id" | "views" | "isRead" | "isBookmarked" | "createdAt" | "comments">) => void;
   deleteAnnouncement: (id: string) => void;
   updateAnnouncement: (id: string, data: Partial<Announcement>) => void;
+  updateStatus: (id: string, status: AnnouncementStatus, rejectionReason?: string) => void;
+  addComment: (announcementId: string, comment: Omit<Comment, "id">) => void;
   categories: string[];
   addCategory: (name: string) => void;
   deleteCategory: (name: string) => void;
@@ -34,7 +36,7 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addAnnouncement = useCallback(
-    (data: Omit<Announcement, "id" | "views" | "isRead" | "isBookmarked" | "createdAt">) => {
+    (data: Omit<Announcement, "id" | "views" | "isRead" | "isBookmarked" | "createdAt" | "comments">) => {
       const newAnn: Announcement = {
         ...data,
         id: Date.now().toString(),
@@ -42,6 +44,7 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
         isRead: false,
         isBookmarked: false,
         createdAt: new Date().toISOString().split("T")[0],
+        comments: [],
       };
       setAnnouncements((prev) => [newAnn, ...prev]);
     },
@@ -58,6 +61,22 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const updateStatus = useCallback((id: string, status: AnnouncementStatus, rejectionReason?: string) => {
+    setAnnouncements((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status, rejectionReason: rejectionReason || a.rejectionReason } : a))
+    );
+  }, []);
+
+  const addComment = useCallback((announcementId: string, comment: Omit<Comment, "id">) => {
+    setAnnouncements((prev) =>
+      prev.map((a) => {
+        if (a.id !== announcementId) return a;
+        const newComment: Comment = { ...comment, id: Date.now().toString() };
+        return { ...a, comments: [...(a.comments || []), newComment] };
+      })
+    );
+  }, []);
+
   const addCategory = useCallback((name: string) => {
     setCategories((prev) => (prev.includes(name) ? prev : [...prev, name]));
   }, []);
@@ -69,15 +88,9 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
   return (
     <AnnouncementsContext.Provider
       value={{
-        announcements,
-        toggleBookmark,
-        markAsRead,
-        addAnnouncement,
-        deleteAnnouncement,
-        updateAnnouncement,
-        categories,
-        addCategory,
-        deleteCategory,
+        announcements, toggleBookmark, markAsRead, addAnnouncement,
+        deleteAnnouncement, updateAnnouncement, updateStatus, addComment,
+        categories, addCategory, deleteCategory,
       }}
     >
       {children}

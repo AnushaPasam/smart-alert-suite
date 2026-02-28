@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, Users, Filter, Bookmark, ArrowRight, Shield, BarChart3, ChevronRight } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
+import { useAuth } from "@/contexts/AuthContext";
+import DarkModeToggle from "@/components/DarkModeToggle";
 
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const { ref, inView } = useInView();
@@ -13,22 +15,34 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 }
 
 const features = [
-  { icon: Shield, title: "Role-Based Access", desc: "Separate dashboards for admins and students with tailored features." },
+  { icon: Shield, title: "Role-Based Access", desc: "Separate dashboards for principal, admin, announcer, and students." },
   { icon: Filter, title: "Category Filtering", desc: "Filter announcements by academic, events, sports, and more." },
   { icon: Bookmark, title: "Bookmark & Read", desc: "Students can bookmark important notices and track read status." },
-  { icon: BarChart3, title: "Analytics Dashboard", desc: "Admins get insights on announcement reach and engagement." },
+  { icon: BarChart3, title: "Analytics Dashboard", desc: "Get insights on announcement reach and engagement." },
 ];
 
 const steps = [
   { step: "01", title: "College Registers", desc: "Institution signs up and configures their campus portal." },
-  { step: "02", title: "Admin Posts", desc: "Administrators create and manage categorized announcements." },
-  { step: "03", title: "Students Receive", desc: "Students get real-time updates filtered by relevance and priority." },
+  { step: "02", title: "Announcer Creates", desc: "Announcers create and submit announcements for approval." },
+  { step: "03", title: "Admin Reviews", desc: "Admin reviews and forwards to principal for final approval." },
+  { step: "04", title: "Students Receive", desc: "Students get real-time updates filtered by relevance and priority." },
 ];
 
+const rolePaths: Record<string, string> = {
+  principal: "/principal/dashboard",
+  admin: "/admin/dashboard",
+  announcer: "/announcer/dashboard",
+  user: "/user/dashboard",
+};
+
 export default function Index() {
+  const { user, isAuthenticated, isReady } = useAuth();
+
   useEffect(() => {
     document.title = "Smart Campus – Announcement Management System";
   }, []);
+
+  const dashboardPath = user ? rolePaths[user.role] || "/user/dashboard" : "/user/login";
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,18 +56,30 @@ export default function Index() {
             <span className="font-semibold">Smart Campus</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Link
-              to="/login"
-              className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-colors shadow-sm"
-            >
-              Register
-            </Link>
+            <DarkModeToggle />
+            {isReady && isAuthenticated ? (
+              <Link
+                to={dashboardPath}
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-colors shadow-sm"
+              >
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                <div className="hidden sm:flex items-center gap-1">
+                  <Link to="/user/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Student</Link>
+                  <Link to="/announcer/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Announcer</Link>
+                  <Link to="/admin/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Admin</Link>
+                  <Link to="/principal/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Principal</Link>
+                </div>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-colors shadow-sm"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -74,18 +100,29 @@ export default function Index() {
               A modern, role-based platform for managing and receiving campus announcements efficiently. Keep your institution connected.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
-              >
-                Get Started <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-all duration-150"
-              >
-                Sign In
-              </Link>
+              {isReady && isAuthenticated ? (
+                <Link
+                  to={dashboardPath}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                >
+                  Go to Dashboard <ArrowRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                  >
+                    Get Started <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/user/login"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-all duration-150"
+                  >
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
           </Section>
         </div>
@@ -125,11 +162,11 @@ export default function Index() {
             <div className="text-center mb-12">
               <h2 className="text-2xl sm:text-3xl font-bold mb-3">How It Works</h2>
               <p className="text-muted-foreground max-w-lg mx-auto">
-                Three simple steps to get your campus connected.
+                Four simple steps to get your campus connected.
               </p>
             </div>
           </Section>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((s, i) => (
               <Section key={s.step}>
                 <div className="text-center" style={{ animationDelay: `${i * 80}ms` }}>
@@ -154,10 +191,10 @@ export default function Index() {
               Join institutions already using Smart Campus to streamline their announcements.
             </p>
             <Link
-              to="/register"
+              to={isAuthenticated ? dashboardPath : "/register"}
               className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-card text-foreground hover:bg-card/90 transition-all duration-150 shadow-sm"
             >
-              Get Started Free <ChevronRight className="h-4 w-4" />
+              {isAuthenticated ? "Go to Dashboard" : "Get Started Free"} <ChevronRight className="h-4 w-4" />
             </Link>
           </Section>
         </div>
@@ -181,16 +218,17 @@ export default function Index() {
             <div>
               <h4 className="font-semibold text-sm mb-3">Quick Links</h4>
               <div className="space-y-2">
-                <Link to="/login" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Login</Link>
+                <Link to="/user/login" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Student Login</Link>
+                <Link to="/admin/login" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Admin Login</Link>
                 <Link to="/register" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Register</Link>
               </div>
             </div>
             <div>
               <h4 className="font-semibold text-sm mb-3">Legal</h4>
               <div className="space-y-2">
-                <span className="block text-sm text-muted-foreground">Privacy Policy</span>
-                <span className="block text-sm text-muted-foreground">Terms of Service</span>
-                <span className="block text-sm text-muted-foreground">Contact Us</span>
+                <Link to="/privacy-policy" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+                <Link to="/terms-of-service" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
+                <Link to="/contact" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</Link>
               </div>
             </div>
           </div>

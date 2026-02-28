@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { useCountUp } from "@/hooks/useCountUp";
-import { FileText, CheckCircle, XCircle, Users } from "lucide-react";
+import { FileText, CheckCircle, XCircle, Users, Clock } from "lucide-react";
 import AnnouncementCard from "@/components/AnnouncementCard";
 
 function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
@@ -24,17 +24,18 @@ export default function AdminDashboard() {
 
   useEffect(() => { document.title = "Admin Dashboard – Smart Campus"; }, []);
 
-  const active = announcements.filter((a) => new Date(a.expiryDate) >= new Date()).length;
-  const expired = announcements.length - active;
+  const active = announcements.filter((a) => a.status === "Published" && new Date(a.expiryDate) >= new Date()).length;
+  const pendingReview = announcements.filter((a) => a.status === "Pending Admin Approval").length;
+  const expired = announcements.filter((a) => a.status === "Published" && new Date(a.expiryDate) < new Date()).length;
 
   const stats = [
     { icon: FileText, label: "Total Announcements", value: announcements.length, color: "bg-campus-blue-light text-primary" },
     { icon: CheckCircle, label: "Active", value: active, color: "bg-campus-olive-light text-campus-olive" },
+    { icon: Clock, label: "Pending Review", value: pendingReview, color: "bg-priority-normal" },
     { icon: XCircle, label: "Expired", value: expired, color: "bg-priority-high" },
-    { icon: Users, label: "Total Students", value: 1247, color: "bg-secondary text-secondary-foreground" },
   ];
 
-  const recent = announcements.slice(0, 5);
+  const recent = announcements.filter(a => a.status === "Published").slice(0, 5);
 
   return (
     <div className="space-y-6">
