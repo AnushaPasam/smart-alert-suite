@@ -8,7 +8,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "student">("student");
+  const [role, setRole] = useState<UserRole>("user");
   const [college, setCollege] = useState(colleges[0].name);
   const [showPw, setShowPw] = useState(false);
   const { register } = useAuth();
@@ -16,11 +16,25 @@ export default function Register() {
 
   useEffect(() => { document.title = "Register – Smart Campus"; }, []);
 
+  const rolePaths: Record<UserRole, string> = {
+    principal: "/principal/dashboard",
+    admin: "/admin/dashboard",
+    announcer: "/announcer/dashboard",
+    user: "/user/dashboard",
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     register({ name: name || "New User", email: email || "user@campus.edu", password, role, college });
-    navigate(role === "admin" ? "/admin" : "/student");
+    navigate(rolePaths[role]);
   };
+
+  const roles: { value: UserRole; label: string }[] = [
+    { value: "user", label: "Student" },
+    { value: "announcer", label: "Announcer" },
+    { value: "admin", label: "Admin" },
+    { value: "principal", label: "Principal" },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -33,57 +47,38 @@ export default function Register() {
             <span className="font-bold text-lg">Smart Campus</span>
           </Link>
           <h1 className="text-2xl font-bold mb-1">Create an account</h1>
-          <p className="text-sm text-muted-foreground">Register as a student or college admin</p>
+          <p className="text-sm text-muted-foreground">Register for Smart Campus</p>
         </div>
 
         <form onSubmit={handleSubmit} className="campus-card-static p-6 space-y-5">
           <div className="flex rounded-lg border border-border overflow-hidden">
-            {(["student", "admin"] as const).map((r) => (
+            {roles.map((r) => (
               <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`flex-1 py-2.5 text-sm font-medium transition-all duration-150 ${
-                  role === r ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
+                key={r.value} type="button" onClick={() => setRole(r.value)}
+                className={`flex-1 py-2.5 text-xs sm:text-sm font-medium transition-all duration-150 ${
+                  role === r.value ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
                 }`}
-              >
-                {r === "admin" ? "College Admin" : "Student"}
-              </button>
+              >{r.label}</button>
             ))}
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1.5">Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your full name"
-              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
-            />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name"
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors" />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1.5">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@campus.edu"
-              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
-            />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@campus.edu"
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors" />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1.5">Password</label>
             <div className="relative">
-              <input
-                type={showPw ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors pr-10"
-              />
+              <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
+                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors pr-10" />
               <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -91,32 +86,21 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5">
-              {role === "admin" ? "College" : "Select College"}
-            </label>
-            <select
-              value={college}
-              onChange={(e) => setCollege(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
-            >
-              {colleges.map((c) => (
-                <option key={c.id} value={c.name}>{c.name}</option>
-              ))}
+            <label className="block text-sm font-medium mb-1.5">College</label>
+            <select value={college} onChange={(e) => setCollege(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors">
+              {colleges.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
             </select>
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
-          >
+          <button type="submit"
+            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5">
             Create Account
           </button>
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
-              Sign In
-            </Link>
+            <Link to="/user/login" className="text-primary font-medium hover:underline">Sign In</Link>
           </p>
         </form>
       </div>

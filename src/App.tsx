@@ -5,29 +5,59 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AnnouncementsProvider } from "@/contexts/AnnouncementsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { lazy, Suspense, type ReactNode } from "react";
 
-// Public pages (load normally)
+// Public pages
 import Index from "./pages/Index";
-import Login from "./pages/Login";
 import Register from "./pages/Register";
 
-// Lazy loaded pages
+// Lazy loaded login pages
+const PrincipalLogin = lazy(() => import("./pages/principal/Login"));
+const AdminLogin = lazy(() => import("./pages/admin/Login"));
+const AnnouncerLogin = lazy(() => import("./pages/announcer/Login"));
+const UserLogin = lazy(() => import("./pages/user/Login"));
+
+// Lazy loaded layouts
+const PrincipalLayout = lazy(() => import("./layouts/PrincipalLayout"));
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
+const AnnouncerLayout = lazy(() => import("./layouts/AnnouncerLayout"));
+const UserLayout = lazy(() => import("./layouts/UserLayout"));
+
+// Lazy loaded principal pages
+const PrincipalDashboard = lazy(() => import("./pages/principal/Dashboard"));
+const PrincipalApprovalQueue = lazy(() => import("./pages/principal/ApprovalQueue"));
+const PrincipalAnalytics = lazy(() => import("./pages/principal/Analytics"));
+const PrincipalAnnouncementDetail = lazy(() => import("./pages/principal/AnnouncementDetail"));
+
+// Lazy loaded admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminCreate = lazy(() => import("./pages/admin/Create"));
 const AdminManage = lazy(() => import("./pages/admin/Manage"));
+const AdminReviewQueue = lazy(() => import("./pages/admin/ReviewQueue"));
+const AdminEdit = lazy(() => import("./pages/admin/Edit"));
+const AdminForwardDecision = lazy(() => import("./pages/admin/ForwardDecision"));
 const AdminCategories = lazy(() => import("./pages/admin/Categories"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
 const AdminProfile = lazy(() => import("./pages/admin/Profile"));
-const StudentDashboard = lazy(() => import("./pages/student/Dashboard"));
-const StudentDetail = lazy(() => import("./pages/student/Detail"));
-const StudentBookmarks = lazy(() => import("./pages/student/Bookmarks"));
-const StudentProfile = lazy(() => import("./pages/student/Profile"));
-const SuperAdminDashboard = lazy(() => import("./pages/superadmin/Dashboard"));
 
-// Lazy loaded layouts
-const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
-const StudentLayout = lazy(() => import("./layouts/StudentLayout"));
+// Lazy loaded announcer pages
+const AnnouncerDashboard = lazy(() => import("./pages/announcer/Dashboard"));
+const AnnouncerCreate = lazy(() => import("./pages/announcer/Create"));
+const AnnouncerStatus = lazy(() => import("./pages/announcer/Status"));
+const AnnouncerPublish = lazy(() => import("./pages/announcer/Publish"));
+
+// Lazy loaded user pages
+const UserDashboard = lazy(() => import("./pages/user/Dashboard"));
+const UserDetail = lazy(() => import("./pages/user/Detail"));
+const UserArchive = lazy(() => import("./pages/user/Archive"));
+const UserSaved = lazy(() => import("./pages/user/Saved"));
+const UserProfile = lazy(() => import("./pages/user/Profile"));
+
+// Legal pages
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 const queryClient = new QueryClient();
 
@@ -40,43 +70,83 @@ function PageLoader() {
 }
 
 function RoleGuard({ role, children }: { role: string; children: ReactNode }) {
-  const { user, isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  const { user, isAuthenticated, isReady } = useAuth();
+  if (!isReady) return <PageLoader />;
+  if (!isAuthenticated) return <Navigate to={`/${role}/login`} replace />;
   if (user?.role !== role) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+function AuthReady({ children }: { children: ReactNode }) {
+  const { isReady } = useAuth();
+  if (!isReady) return <PageLoader />;
   return <>{children}</>;
 }
 
 function AppRoutes() {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+    <AuthReady>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<Index />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* Admin */}
-        <Route path="/admin" element={<RoleGuard role="admin"><AdminLayout><AdminDashboard /></AdminLayout></RoleGuard>} />
-        <Route path="/admin/create" element={<RoleGuard role="admin"><AdminLayout><AdminCreate /></AdminLayout></RoleGuard>} />
-        <Route path="/admin/manage" element={<RoleGuard role="admin"><AdminLayout><AdminManage /></AdminLayout></RoleGuard>} />
-        <Route path="/admin/categories" element={<RoleGuard role="admin"><AdminLayout><AdminCategories /></AdminLayout></RoleGuard>} />
-        <Route path="/admin/analytics" element={<RoleGuard role="admin"><AdminLayout><AdminAnalytics /></AdminLayout></RoleGuard>} />
-        <Route path="/admin/profile" element={<RoleGuard role="admin"><AdminLayout><AdminProfile /></AdminLayout></RoleGuard>} />
-        <Route path="/admin/announcement/:id" element={<RoleGuard role="admin"><AdminLayout><StudentDetail /></AdminLayout></RoleGuard>} />
+          {/* Role-specific logins */}
+          <Route path="/principal/login" element={<PrincipalLogin />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/announcer/login" element={<AnnouncerLogin />} />
+          <Route path="/user/login" element={<UserLogin />} />
+          {/* Backwards compat */}
+          <Route path="/login" element={<Navigate to="/user/login" replace />} />
 
-        {/* Student */}
-        <Route path="/student" element={<RoleGuard role="student"><StudentLayout><StudentDashboard /></StudentLayout></RoleGuard>} />
-        <Route path="/student/announcement/:id" element={<RoleGuard role="student"><StudentLayout><StudentDetail /></StudentLayout></RoleGuard>} />
-        <Route path="/student/bookmarks" element={<RoleGuard role="student"><StudentLayout><StudentBookmarks /></StudentLayout></RoleGuard>} />
-        <Route path="/student/profile" element={<RoleGuard role="student"><StudentLayout><StudentProfile /></StudentLayout></RoleGuard>} />
+          {/* Legal (public) */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
 
-        {/* Super Admin */}
-        <Route path="/superadmin" element={<RoleGuard role="superadmin"><SuperAdminDashboard /></RoleGuard>} />
+          {/* Principal */}
+          <Route path="/principal/dashboard" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalDashboard /></PrincipalLayout></RoleGuard>} />
+          <Route path="/principal/approval-queue" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalApprovalQueue /></PrincipalLayout></RoleGuard>} />
+          <Route path="/principal/analytics" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalAnalytics /></PrincipalLayout></RoleGuard>} />
+          <Route path="/principal/announcement/:id" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalAnnouncementDetail /></PrincipalLayout></RoleGuard>} />
 
-        {/* Catch-all */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+          {/* Admin */}
+          <Route path="/admin/dashboard" element={<RoleGuard role="admin"><AdminLayout><AdminDashboard /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/create" element={<RoleGuard role="admin"><AdminLayout><AdminCreate /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/manage" element={<RoleGuard role="admin"><AdminLayout><AdminManage /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/review-queue" element={<RoleGuard role="admin"><AdminLayout><AdminReviewQueue /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/edit/:id" element={<RoleGuard role="admin"><AdminLayout><AdminEdit /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/forward-decision" element={<RoleGuard role="admin"><AdminLayout><AdminForwardDecision /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/categories" element={<RoleGuard role="admin"><AdminLayout><AdminCategories /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/analytics" element={<RoleGuard role="admin"><AdminLayout><AdminAnalytics /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/profile" element={<RoleGuard role="admin"><AdminLayout><AdminProfile /></AdminLayout></RoleGuard>} />
+          {/* Backwards compat */}
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+          {/* Announcer */}
+          <Route path="/announcer/dashboard" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerDashboard /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/create" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerCreate /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/status/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerStatus /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/publish/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerPublish /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/publish" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerPublish /></AnnouncerLayout></RoleGuard>} />
+
+          {/* User */}
+          <Route path="/user/dashboard" element={<RoleGuard role="user"><UserLayout><UserDashboard /></UserLayout></RoleGuard>} />
+          <Route path="/user/announcement/:id" element={<RoleGuard role="user"><UserLayout><UserDetail /></UserLayout></RoleGuard>} />
+          <Route path="/user/archive" element={<RoleGuard role="user"><UserLayout><UserArchive /></UserLayout></RoleGuard>} />
+          <Route path="/user/saved" element={<RoleGuard role="user"><UserLayout><UserSaved /></UserLayout></RoleGuard>} />
+          <Route path="/user/profile" element={<RoleGuard role="user"><UserLayout><UserProfile /></UserLayout></RoleGuard>} />
+          {/* Backwards compat */}
+          <Route path="/student" element={<Navigate to="/user/dashboard" replace />} />
+          <Route path="/student/*" element={<Navigate to="/user/dashboard" replace />} />
+          <Route path="/superadmin" element={<Navigate to="/principal/dashboard" replace />} />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </AuthReady>
   );
 }
 
@@ -85,13 +155,15 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AuthProvider>
-        <AnnouncementsProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </AnnouncementsProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AnnouncementsProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </AnnouncementsProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
