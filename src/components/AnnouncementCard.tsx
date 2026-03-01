@@ -1,5 +1,5 @@
-import { Bookmark, BookmarkCheck, Pin, Paperclip, Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bookmark, BookmarkCheck, Pin, Paperclip, Eye, Download } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import type { Announcement } from "@/data/announcements";
 
 interface Props {
@@ -18,11 +18,13 @@ export default function AnnouncementCard({ announcement: a, onToggleBookmark, ba
   const priority = priorityConfig[a.priority];
   const isExpired = new Date(a.expiryDate) < new Date();
 
+  const navigate = useNavigate();
+
   return (
     <article
-      className={`campus-card p-5 flex flex-col gap-3 relative ${
-        !a.isRead ? "border-l-[3px] border-l-primary" : ""
-      } ${a.priority === "high" ? "priority-pulse-high" : ""}`}
+      onClick={() => navigate(`${basePath}/announcement/${a.id}`)}
+      className={`campus-card p-5 flex flex-col gap-3 relative cursor-pointer hover:shadow-md transition-shadow ${!a.isRead ? "border-l-[3px] border-l-primary" : ""
+        } ${a.priority === "high" ? "priority-pulse-high" : ""}`}
     >
       {/* Top badges */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -45,11 +47,9 @@ export default function AnnouncementCard({ announcement: a, onToggleBookmark, ba
       </div>
 
       {/* Title */}
-      <Link to={`${basePath}/announcement/${a.id}`} className="group">
-        <h3 className="text-base font-semibold leading-snug group-hover:text-primary transition-colors line-clamp-2">
-          {a.title}
-        </h3>
-      </Link>
+      <h3 className="text-base font-semibold leading-snug group-hover:text-primary transition-colors line-clamp-2">
+        {a.title}
+      </h3>
 
       {/* Description */}
       <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">{a.description}</p>
@@ -71,6 +71,32 @@ export default function AnnouncementCard({ announcement: a, onToggleBookmark, ba
           <button
             onClick={(e) => {
               e.preventDefault();
+              e.stopPropagation();
+              import('jspdf').then(({ jsPDF }) => {
+                const doc = new jsPDF();
+                doc.setFontSize(22);
+                doc.text("SMART CAMPUS ANNOUNCEMENT", 10, 20);
+                doc.setFontSize(14);
+                doc.text(`Title: ${a.title}`, 10, 40);
+                doc.text(`Category: ${a.category}`, 10, 50);
+                doc.text(`Department: ${a.department}`, 10, 60);
+                doc.text(`Posted: ${a.createdAt}`, 10, 70);
+                doc.text(`Expires: ${a.expiryDate}`, 10, 80);
+                doc.setFontSize(12);
+                const splitText = doc.splitTextToSize(a.description, 180);
+                doc.text(splitText, 10, 100);
+                doc.save(`announcement-${a.id}.pdf`);
+              });
+            }}
+            className="hover:text-primary transition-colors"
+            aria-label="Download PDF"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               onToggleBookmark?.(a.id);
             }}
             className="hover:text-primary transition-colors"

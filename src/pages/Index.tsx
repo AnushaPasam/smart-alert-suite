@@ -1,9 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Bell, Users, Filter, Bookmark, ArrowRight, Shield, BarChart3, ChevronRight } from "lucide-react";
+import { Bell, Users, Filter, Bookmark, ArrowRight, Shield, BarChart3, ChevronRight, Menu, X, ChevronDown } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
 import { useAuth } from "@/contexts/AuthContext";
-import DarkModeToggle from "@/components/DarkModeToggle";
+import { Component as InfiniteGrid } from "@/components/ui/the-infinite-grid";
+import Logo from "@/components/Logo";
+import { motion, AnimatePresence } from "framer-motion";
 
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const { ref, inView } = useInView();
@@ -22,7 +24,7 @@ const features = [
 ];
 
 const steps = [
-  { step: "01", title: "College Registers", desc: "Institution signs up and configures their campus portal." },
+  { step: "01", title: "Campus Registers", desc: "Institution signs up and configures their campus portal." },
   { step: "02", title: "Announcer Creates", desc: "Announcers create and submit announcements for approval." },
   { step: "03", title: "Admin Reviews", desc: "Admin reviews and forwards to principal for final approval." },
   { step: "04", title: "Students Receive", desc: "Students get real-time updates filtered by relevance and priority." },
@@ -37,99 +39,307 @@ const rolePaths: Record<string, string> = {
 
 export default function Index() {
   const { user, isAuthenticated, isReady } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
     document.title = "Smart Campus – Announcement Management System";
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+
+      // Active section highlighting
+      const sections = ["home", "how-it-works"];
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const scrollToSection = (id: string) => {
+    setMobileMenuOpen(false);
+    if (id === "home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
 
   const dashboardPath = user ? rolePaths[user.role] || "/user/dashboard" : "/user/login";
 
+  const navLinks = [
+    { name: "Home", to: "/", id: "home", type: "scroll" },
+    { name: "About", to: "/about", type: "link" },
+    { name: "Contact", to: "/contact", type: "link" },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Bell className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold">Smart Campus</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <DarkModeToggle />
-            {isReady && isAuthenticated ? (
-              <Link
-                to={dashboardPath}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-colors shadow-sm"
-              >
-                Go to Dashboard
-              </Link>
-            ) : (
-              <>
-                <div className="hidden sm:flex items-center gap-1">
-                  <Link to="/user/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Student</Link>
-                  <Link to="/announcer/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Announcer</Link>
-                  <Link to="/admin/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Admin</Link>
-                  <Link to="/principal/login" className="px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Principal</Link>
-                </div>
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      <header
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 flex items-center ${scrolled
+          ? "bg-card/95 backdrop-blur-md border-b border-border shadow-soft h-16 sm:h-20"
+          : "bg-transparent h-24"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between">
+          <Logo className="mr-8" to="/" />
+
+          <div className="flex items-center gap-8">
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-6">
+              {navLinks.map((link) => (
+                link.type === "scroll" ? (
+                  <button
+                    key={link.name}
+                    onClick={() => scrollToSection(link.id!)}
+                    className={`text-sm font-bold tracking-tight transition-colors duration-300 relative py-2 ${activeSection === link.id ? "text-primary" : "text-foreground/60 hover:text-primary"
+                      }`}
+                  >
+                    {link.name}
+                    {activeSection === link.id && (
+                      <motion.div
+                        layoutId="nav-underline"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </button>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.to}
+                    className="text-sm font-bold tracking-tight text-foreground/60 hover:text-primary transition-colors duration-300 py-2"
+                  >
+                    {link.name}
+                  </Link>
+                )
+              ))}
+
+              {isReady && isAuthenticated ? (
                 <Link
-                  to="/register"
-                  className="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-colors shadow-sm"
+                  to={dashboardPath}
+                  className="group relative px-6 py-2.5 text-sm font-bold rounded-xl bg-primary text-primary-foreground transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 active:scale-95 overflow-hidden"
                 >
-                  Get Started
+                  <span className="relative z-10 flex items-center gap-2">
+                    Dashboard <ArrowRight className="h-4 w-4" />
+                  </span>
                 </Link>
-              </>
-            )}
+              ) : (
+                <div className="flex items-center gap-6 ml-2">
+                  <Link
+                    to="/user/login"
+                    className="text-sm font-bold text-foreground/70 hover:text-primary transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/user/register"
+                    className="group relative px-6 py-2.5 text-sm font-bold rounded-xl bg-primary text-primary-foreground transition-all duration-300 shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-1 active:scale-95 overflow-hidden"
+                  >
+                    <span className="relative z-10">Register</span>
+                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                  </Link>
+                </div>
+              )}
+            </nav>
+          </div>
+          <div className="flex md:hidden items-center gap-4">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className={`p-2.5 rounded-xl transition-all active:scale-90 text-black ${scrolled ? "bg-muted" : "bg-white/10 backdrop-blur-md border border-black/20"
+                }`}
+              aria-label="Open Menu"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </div>
       </header>
 
+      {/* Mobile Menu Side-Drawer */}
+      <AnimatePresence>
+        {
+          mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[110] md:hidden"
+              />
+
+              {/* Drawer */}
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[400px] bg-card border-l border-border z-[120] md:hidden shadow-2xl flex flex-col"
+              >
+                <div className="p-6 flex items-center justify-between border-b border-border">
+                  <Logo showText={true} onClick={() => setMobileMenuOpen(false)} />
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors active:scale-90"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+
+                <nav className="flex-1 px-6 py-10 space-y-6">
+                  {navLinks.map((link, i) => (
+                    link.type === "scroll" ? (
+                      <motion.button
+                        key={link.name}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 + i * 0.1 }}
+                        onClick={() => { scrollToSection(link.id!); setMobileMenuOpen(false); }}
+                        className={`block w-full text-left text-2xl font-black transition-colors ${activeSection === link.id ? "text-primary" : "text-foreground/60"
+                          }`}
+                      >
+                        {link.name}
+                      </motion.button>
+                    ) : (
+                      <motion.div
+                        key={link.name}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.1 + i * 0.1 }}
+                      >
+                        <Link
+                          to={link.to}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block w-full text-left text-2xl font-black text-foreground/60 hover:text-primary transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    )
+                  ))}
+
+                  <div className="h-px bg-border my-6" />
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="space-y-4"
+                  >
+                    {isReady && isAuthenticated ? (
+                      <Link
+                        to={dashboardPath}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center justify-center gap-2 w-full py-4 text-lg font-black rounded-2xl bg-primary text-primary-foreground shadow-xl"
+                      >
+                        Dashboard <ArrowRight className="h-5 w-5" />
+                      </Link>
+                    ) : (
+                      <>
+                        <Link
+                          to="/user/login"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center justify-center w-full py-4 text-lg font-black rounded-2xl border-2 border-border text-foreground"
+                        >
+                          Sign In
+                        </Link>
+                        <Link
+                          to="/user/register"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center justify-center w-full py-4 text-lg font-black rounded-2xl bg-primary text-primary-foreground shadow-xl"
+                        >
+                          Register
+                        </Link>
+                      </>
+                    )}
+                  </motion.div>
+                </nav>
+
+              </motion.div>
+            </>
+          )
+        }
+      </AnimatePresence>
+
       {/* Hero */}
-      <section className="campus-section">
-        <div className="campus-container text-center max-w-3xl mx-auto">
-          <Section>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-campus-olive-light text-campus-olive text-xs font-medium mb-6">
-              <Bell className="h-3 w-3" />
-              Campus Communication Platform
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+      <section id="home" className="min-h-screen flex flex-col">
+        <InfiniteGrid className="flex-1 pt-16 sm:pt-20">
+          <div className="w-full text-center px-4 sm:px-6 lg:px-8 py-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-campus-olive-light/50 backdrop-blur-sm text-campus-olive text-xs font-bold mb-6">
+                <Bell className="h-3 w-3" />
+                Campus Communication Platform
+              </div>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+              className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-4 tracking-tight max-w-5xl mx-auto"
+            >
               Smart Campus<br />
-              <span className="text-primary">Announcement System</span>
-            </h1>
-            <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8 max-w-xl mx-auto">
-              A modern, role-based platform for managing and receiving campus announcements efficiently. Keep your institution connected.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {isReady && isAuthenticated ? (
-                <Link
-                  to={dashboardPath}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                >
-                  Go to Dashboard <ArrowRight className="h-4 w-4" />
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/register"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                  >
-                    Get Started <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/user/login"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg border border-border text-foreground hover:bg-muted transition-all duration-150"
-                  >
-                    Sign In
-                  </Link>
-                </>
-              )}
-            </div>
-          </Section>
-        </div>
+              <span className="text-primary drop-shadow-sm">Announcement System</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+              className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8 max-w-2xl mx-auto font-medium"
+            >
+              A modern, role-based platform for managing and receiving campus announcements efficiently. Keep your institution connected with real-time updates and smart filtering.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="flex flex-col sm:flex-row gap-4 justify-center pointer-events-auto"
+            >
+              <Link
+                to={isAuthenticated ? dashboardPath : "/user/register"}
+                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 sm:px-12 sm:py-5 text-base font-black rounded-2xl bg-primary text-primary-foreground transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/50 hover:-translate-y-1 hover:scale-[1.03] active:scale-95 overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  {isAuthenticated ? "Go to Dashboard" : "Register Now"} <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform" />
+                </span>
+                <div className="absolute inset-0 bg-black/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              </Link>
+            </motion.div>
+          </div>
+        </InfiniteGrid>
       </section>
 
       {/* Features */}
-      <section className="campus-section bg-card border-y border-border">
+      <section id="features" className="campus-section bg-card border-y border-border">
         <div className="campus-container">
           <Section>
             <div className="text-center mb-12">
@@ -156,7 +366,7 @@ export default function Index() {
       </section>
 
       {/* How It Works */}
-      <section className="campus-section">
+      <section id="how-it-works" className="campus-section">
         <div className="campus-container">
           <Section>
             <div className="text-center mb-12">
@@ -180,6 +390,7 @@ export default function Index() {
         </div>
       </section>
 
+
       {/* CTA */}
       <section className="campus-section bg-primary">
         <div className="campus-container text-center">
@@ -191,7 +402,7 @@ export default function Index() {
               Join institutions already using Smart Campus to streamline their announcements.
             </p>
             <Link
-              to={isAuthenticated ? dashboardPath : "/register"}
+              to={isAuthenticated ? dashboardPath : "/user/register"}
               className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold rounded-lg bg-card text-foreground hover:bg-card/90 transition-all duration-150 shadow-sm"
             >
               {isAuthenticated ? "Go to Dashboard" : "Get Started Free"} <ChevronRight className="h-4 w-4" />
@@ -218,9 +429,9 @@ export default function Index() {
             <div>
               <h4 className="font-semibold text-sm mb-3">Quick Links</h4>
               <div className="space-y-2">
-                <Link to="/user/login" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Student Login</Link>
-                <Link to="/admin/login" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Admin Login</Link>
-                <Link to="/register" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Register</Link>
+                <Link to="/user/register" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Register</Link>
+                <Link to="/user/login" className="block text-sm text-muted-foreground hover:text-primary transition-colors">Sign In</Link>
+                <Link to="/about" className="block text-sm text-muted-foreground hover:text-primary transition-colors">About</Link>
               </div>
             </div>
             <div>

@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
 
           <section className="space-y-3">
             <h2 className="text-lg font-semibold">1. Information We Collect</h2>
-            <p className="text-sm leading-relaxed text-muted-foreground">We collect information you provide directly, including your name, email address, college affiliation, and role within the system. We also collect usage data to improve our services.</p>
+            <p className="text-sm leading-relaxed text-muted-foreground">We collect information you provide directly, including your name, email address, branch affiliation, and role within the system. We also collect usage data to improve our services.</p>
           </section>
 
           <section className="space-y-3">

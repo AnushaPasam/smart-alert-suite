@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Building, Lock, LogOut } from "lucide-react";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 
 export default function AdminProfile() {
   const { user, logout } = useAuth();
@@ -28,7 +29,7 @@ export default function AdminProfile() {
           {[
             { icon: User, label: "Full Name", value: user?.name || "Dr. Sharma" },
             { icon: Mail, label: "Email", value: user?.email || "admin@campus.edu" },
-            { icon: Building, label: "College", value: user?.college || "NIT Delhi" },
+            { icon: Building, label: "Branch", value: user?.branch || "Administration" },
           ].map((item) => (
             <div key={item.label} className="flex items-center gap-3">
               <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -41,9 +42,7 @@ export default function AdminProfile() {
         </div>
 
         <div className="pt-4 border-t border-border space-y-3">
-          <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors">
-            <Lock className="h-4 w-4 text-muted-foreground" /> Change Password
-          </button>
+          <ChangePasswordDialog />
           <button
             onClick={() => { logout(); navigate("/"); }}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"

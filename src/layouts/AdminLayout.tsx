@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import DarkModeToggle from "@/components/DarkModeToggle";
+import Logo from "@/components/Logo";
 import {
-  LayoutDashboard, PlusCircle, List, Tags, BarChart3, User, LogOut, Menu, X, Bell,
+  LayoutDashboard, List, Tags, BarChart3, User, LogOut, Menu, X,
   CheckCircle, ArrowRight,
 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Create", path: "/admin/create", icon: PlusCircle },
   { label: "Manage", path: "/admin/manage", icon: List },
   { label: "Review Queue", path: "/admin/review-queue", icon: CheckCircle },
   { label: "Forward Decision", path: "/admin/forward-decision", icon: ArrowRight },
@@ -31,16 +30,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="fixed inset-0 bg-foreground/20 z-40 lg:hidden animate-fade-in-up" onClick={() => setSidebarOpen(false)} />
       )}
 
-      <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      }`}>
+      <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}>
         <div className="p-5 border-b border-border flex items-center justify-between">
-          <Link to="/admin/dashboard" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Bell className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-sm">Admin Panel</span>
-          </Link>
+          <Logo to="/" className="scale-90 origin-left" />
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
@@ -51,9 +44,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             const active = location.pathname === item.path;
             return (
               <Link key={item.path} to={item.path} onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}>
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}>
                 <item.icon className="h-4 w-4" />{item.label}
               </Link>
             );
@@ -62,9 +54,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className="p-3 border-t border-border space-y-1">
           <Link to="/admin/profile" onClick={() => setSidebarOpen(false)}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-              location.pathname === "/admin/profile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            }`}>
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${location.pathname === "/admin/profile" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}>
             <User className="h-4 w-4" /> Profile
           </Link>
           <button onClick={handleLogout}
@@ -75,17 +66,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm border-b border-border px-4 sm:px-6 h-14 flex items-center justify-between">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-muted-foreground hover:text-foreground" aria-label="Open sidebar">
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="hidden lg:block" />
+        <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-md border-b border-border px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2 lg:hidden">
+            <Logo to="/" />
+          </div>
+          <div className="hidden lg:block">
+            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Admin Dashboard</h2>
+          </div>
+
           <div className="flex items-center gap-3">
-            <DarkModeToggle />
-            <span className="text-sm text-muted-foreground hidden sm:block">{user?.name}</span>
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold">
+            <div className="hidden sm:flex flex-col items-end mr-1">
+              <span className="text-sm font-bold text-foreground leading-tight">{user?.name}</span>
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">HOD / Admin</span>
+            </div>
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-sm font-bold">
               {user?.name?.charAt(0) || "A"}
             </div>
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2.5 rounded-xl bg-muted text-muted-foreground hover:text-foreground transition-all active:scale-95 ml-1" aria-label="Open sidebar">
+              <Menu className="h-5 w-5" />
+            </button>
           </div>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>

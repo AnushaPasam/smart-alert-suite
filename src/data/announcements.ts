@@ -43,16 +43,8 @@ export const categories = [
   "Academic", "Events", "Administrative", "Sports", "Library", "Examination", "Placement", "Hostel",
 ];
 
-export const departments = [
-  "CSE", "ECE", "EEE", "ME", "CE", "IT", "MBA", "General",
-];
-
-export const colleges = [
-  { id: "c1", name: "National Institute of Technology, Delhi" },
-  { id: "c2", name: "Indian Institute of Technology, Mumbai" },
-  { id: "c3", name: "Delhi Technological University" },
-  { id: "c4", name: "BITS Pilani" },
-  { id: "c5", name: "VIT Vellore" },
+export const branches = [
+  "CSE", "ECE", "EEE", "IT", "Mechanical", "Civil", "MCA", "MBA",
 ];
 
 export const dummyAnnouncements: Announcement[] = [
@@ -65,9 +57,11 @@ export const dummyAnnouncements: Announcement[] = [
     status: "Published", isUrgent: true,
     attachment: { name: "exam_schedule.pdf", type: "pdf", size: "2.4 MB" },
     comments: [
-      { id: "c1", author: "Prof. Sharma", role: "admin", text: "Please verify the CSE schedule.", timestamp: "2026-02-25T10:00:00", replies: [
-        { id: "c1r1", author: "Vikram Singh", role: "announcer", text: "Verified and corrected.", timestamp: "2026-02-25T11:30:00" }
-      ]},
+      {
+        id: "c1", author: "Prof. Sharma", role: "admin", text: "Please verify the CSE schedule.", timestamp: "2026-02-25T10:00:00", replies: [
+          { id: "c1r1", author: "Vikram Singh", role: "announcer", text: "Verified and corrected.", timestamp: "2026-02-25T11:30:00" }
+        ]
+      },
     ],
   },
   {

@@ -10,7 +10,12 @@ import { lazy, Suspense, type ReactNode } from "react";
 
 // Public pages
 import Index from "./pages/Index";
-import Register from "./pages/Register";
+
+// Lazy loaded registration pages
+const PrincipalRegister = lazy(() => import("./pages/principal/Register"));
+const AdminRegister = lazy(() => import("./pages/admin/Register"));
+const AnnouncerRegister = lazy(() => import("./pages/announcer/Register"));
+const UserRegister = lazy(() => import("./pages/user/Register"));
 
 // Lazy loaded login pages
 const PrincipalLogin = lazy(() => import("./pages/principal/Login"));
@@ -29,10 +34,11 @@ const PrincipalDashboard = lazy(() => import("./pages/principal/Dashboard"));
 const PrincipalApprovalQueue = lazy(() => import("./pages/principal/ApprovalQueue"));
 const PrincipalAnalytics = lazy(() => import("./pages/principal/Analytics"));
 const PrincipalAnnouncementDetail = lazy(() => import("./pages/principal/AnnouncementDetail"));
+const PrincipalProfile = lazy(() => import("./pages/principal/Profile"));
 
 // Lazy loaded admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
-const AdminCreate = lazy(() => import("./pages/admin/Create"));
+// const AdminCreate = lazy(() => import("./pages/admin/Create"));
 const AdminManage = lazy(() => import("./pages/admin/Manage"));
 const AdminReviewQueue = lazy(() => import("./pages/admin/ReviewQueue"));
 const AdminEdit = lazy(() => import("./pages/admin/Edit"));
@@ -46,6 +52,7 @@ const AnnouncerDashboard = lazy(() => import("./pages/announcer/Dashboard"));
 const AnnouncerCreate = lazy(() => import("./pages/announcer/Create"));
 const AnnouncerStatus = lazy(() => import("./pages/announcer/Status"));
 const AnnouncerPublish = lazy(() => import("./pages/announcer/Publish"));
+const AnnouncerProfile = lazy(() => import("./pages/announcer/Profile"));
 
 // Lazy loaded user pages
 const UserDashboard = lazy(() => import("./pages/user/Dashboard"));
@@ -58,6 +65,7 @@ const UserProfile = lazy(() => import("./pages/user/Profile"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
+const About = lazy(() => import("./pages/About"));
 
 const queryClient = new QueryClient();
 
@@ -90,7 +98,13 @@ function AppRoutes() {
         <Routes>
           {/* Public */}
           <Route path="/" element={<Index />} />
-          <Route path="/register" element={<Register />} />
+
+          {/* Role-specific registration (publicly accessible targets) */}
+          <Route path="/principal/register" element={<PrincipalRegister />} />
+          <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/announcer/register" element={<AnnouncerRegister />} />
+          <Route path="/user/register" element={<UserRegister />} />
+          <Route path="/register" element={<Navigate to="/user/register" replace />} />
 
           {/* Role-specific logins */}
           <Route path="/principal/login" element={<PrincipalLogin />} />
@@ -104,16 +118,18 @@ function AppRoutes() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
 
           {/* Principal */}
           <Route path="/principal/dashboard" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalDashboard /></PrincipalLayout></RoleGuard>} />
           <Route path="/principal/approval-queue" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalApprovalQueue /></PrincipalLayout></RoleGuard>} />
           <Route path="/principal/analytics" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalAnalytics /></PrincipalLayout></RoleGuard>} />
           <Route path="/principal/announcement/:id" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalAnnouncementDetail /></PrincipalLayout></RoleGuard>} />
+          <Route path="/principal/profile" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalProfile /></PrincipalLayout></RoleGuard>} />
 
           {/* Admin */}
           <Route path="/admin/dashboard" element={<RoleGuard role="admin"><AdminLayout><AdminDashboard /></AdminLayout></RoleGuard>} />
-          <Route path="/admin/create" element={<RoleGuard role="admin"><AdminLayout><AdminCreate /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/announcement/:id" element={<RoleGuard role="admin"><AdminLayout><UserDetail /></AdminLayout></RoleGuard>} />
           <Route path="/admin/manage" element={<RoleGuard role="admin"><AdminLayout><AdminManage /></AdminLayout></RoleGuard>} />
           <Route path="/admin/review-queue" element={<RoleGuard role="admin"><AdminLayout><AdminReviewQueue /></AdminLayout></RoleGuard>} />
           <Route path="/admin/edit/:id" element={<RoleGuard role="admin"><AdminLayout><AdminEdit /></AdminLayout></RoleGuard>} />
@@ -126,10 +142,12 @@ function AppRoutes() {
 
           {/* Announcer */}
           <Route path="/announcer/dashboard" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerDashboard /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/announcement/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><UserDetail /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/create" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerCreate /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/status/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerStatus /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/publish/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerPublish /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/publish" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerPublish /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/profile" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerProfile /></AnnouncerLayout></RoleGuard>} />
 
           {/* User */}
           <Route path="/user/dashboard" element={<RoleGuard role="user"><UserLayout><UserDashboard /></UserLayout></RoleGuard>} />

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, type UserRole } from "@/contexts/AuthContext";
 import { Bell, Eye, EyeOff } from "lucide-react";
+import { ForgotPasswordDialog } from "./ForgotPasswordDialog";
 
 export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
   const [email, setEmail] = useState("");
@@ -44,7 +45,7 @@ export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
             </div>
             <span className="font-bold text-lg">Smart Campus</span>
           </Link>
-          <h1 className="text-2xl font-bold mb-1">{roleLabels[defaultRole]} Login</h1>
+          <h1 className="text-2xl font-bold mb-1">Sign In</h1>
           <p className="text-sm text-muted-foreground">Sign in to your {roleLabels[defaultRole].toLowerCase()} account</p>
         </div>
 
@@ -66,27 +67,27 @@ export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
                 placeholder="••••••••"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors pr-10"
               />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all active:scale-90">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <button type="button" className="text-xs text-primary hover:underline">Forgot password?</button>
-          </div>
-
           <button type="submit"
-            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+            className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm font-bold hover:bg-campus-blue-hover transition-all duration-150 shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5"
           >
-            Sign In as {roleLabels[defaultRole]}
+            Sign In
           </button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-primary font-medium hover:underline">Register</Link>
-          </p>
         </form>
+
+        <div className="mt-4 flex flex-col items-center gap-4">
+          <ForgotPasswordDialog />
+
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Link to={`/${defaultRole}/register`} className="text-primary font-bold hover:underline">Register</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
