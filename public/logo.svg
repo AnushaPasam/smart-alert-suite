@@ -1,0 +1,59 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gold Gradient for depth -->
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D4AF37" />
+      <stop offset="50%" stop-color="#F9E076" />
+      <stop offset="100%" stop-color="#B8860B" />
+    </linearGradient>
+    
+    <!-- Navy Gradient for rich background -->
+    <radialGradient id="navyGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#003366" />
+      <stop offset="100%" stop-color="#001830" />
+    </radialGradient>
+
+    <!-- Shadow for the bell and book -->
+    <filter id="subtleDrop" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Outer Ring (Gold) -->
+  <circle cx="256" cy="256" r="240" fill="url(#goldGradient)" />
+  
+  <!-- Main Background (Navy) -->
+  <circle cx="256" cy="256" r="225" fill="url(#navyGradient)" />
+  
+  <!-- Inner Detail Ring (Gold) -->
+  <circle cx="256" cy="256" r="218" stroke="url(#goldGradient)" stroke-width="1.5" opacity="0.4" />
+
+  <!-- Stars (Gold) -->
+  <g fill="#D4AF37" filter="url(#subtleDrop)">
+    <!-- Left Star -->
+    <path d="M85 256l6-4 8 2-5 7 2 8-7-4-7 4 2-8-5-7 8-2z" />
+    <!-- Right Star -->
+    <path d="M427 256l6-4 8 2-5 7 2 8-7-4-7 4 2-8-5-7 8-2z" />
+  </g>
+
+  <!-- Open Book (White) -->
+  <g filter="url(#subtleDrop)">
+    <!-- Right Page -->
+    <path d="M256 310C256 310 320 310 380 340V430C320 400 256 400 256 400V310Z" fill="white" />
+    <!-- Left Page -->
+    <path d="M256 310C256 310 192 310 132 340V430C192 400 256 400 256 400V310Z" fill="white" />
+    <!-- Spine/Gutter -->
+    <rect x="254" y="310" width="4" height="120" fill="#001F3F" opacity="0.1" />
+  </g>
+
+  <!-- Alert Bell (White) -->
+  <g transform="translate(256, 190)" filter="url(#subtleDrop)">
+    <!-- Main Bell Shape -->
+    <path d="M0 -75C-35 -75 -42 -40 -42 -10C-42 10 -48 20 -48 30H48C48 20 42 10 42 -10C42 -40 35 -75 0 -75Z" fill="white" />
+    <!-- Clapper (Bottom) -->
+    <circle cy="35" r="8" fill="white" />
+    <!-- Bell Top Ring/Detail -->
+    <circle cy="-80" r="10" stroke="url(#goldGradient)" stroke-width="5" fill="none" />
+    <path d="M-10 -80C-10 -85 10 -85 10 -80" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round" fill="none" />
+  </g>
+</svg>

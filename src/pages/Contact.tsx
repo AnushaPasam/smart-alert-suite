@@ -1,20 +1,16 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function Contact() {
-  useEffect(() => { document.title = "Contact Us | Smart Campus Support"; }, []);
+  useEffect(() => { document.title = "Contact Us | EduAlert Support"; }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Bell className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold">Smart Campus</span>
-          </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between">
+          <Logo showText={true} className="scale-90 origin-left" />
         </div>
       </header>
 
@@ -25,11 +21,11 @@ export default function Contact() {
 
         <article className="campus-card-static p-6 sm:p-8 space-y-6">
           <h1 className="text-2xl font-bold">Contact Us</h1>
-          <p className="text-sm text-muted-foreground">Get in touch with the Smart Campus team</p>
+          <p className="text-sm text-muted-foreground">Get in touch with the EduAlert team</p>
 
           <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { icon: Mail, label: "Email", value: "support@smartcampus.edu" },
+              { icon: Mail, label: "Email", value: "support@edualert.edu" },
               { icon: Phone, label: "Phone", value: "+91 11 2345 6789" },
               { icon: MapPin, label: "Address", value: "NIT Delhi, New Delhi, India" },
             ].map((item) => (

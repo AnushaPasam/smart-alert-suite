@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Bell, Users, Filter, Bookmark, ArrowRight, Shield, BarChart3, ChevronRight, Menu, X, ChevronDown } from "lucide-react";
 import { useInView } from "@/hooks/useInView";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,7 +31,7 @@ const steps = [
 ];
 
 const rolePaths: Record<string, string> = {
-  principal: "/principal/dashboard",
+  principal: "/superadmin/dashboard",
   admin: "/admin/dashboard",
   announcer: "/announcer/dashboard",
   user: "/user/dashboard",
@@ -39,12 +39,20 @@ const rolePaths: Record<string, string> = {
 
 export default function Index() {
   const { user, isAuthenticated, isReady } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
-    document.title = "Smart Campus – Announcement Management System";
+    if (isReady && isAuthenticated && user && user.role !== "user") {
+      const dest = rolePaths[user.role] || "/user/dashboard";
+      navigate(dest, { replace: true });
+    }
+  }, [isReady, isAuthenticated, user, navigate]);
+
+  useEffect(() => {
+    document.title = "EduAlert – Announcement Management System";
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -269,7 +277,7 @@ export default function Index() {
                         <Link
                           to="/user/register"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center justify-center w-full py-4 text-lg font-black rounded-2xl bg-primary text-primary-foreground shadow-xl"
+                          className="flex items-center justify-center w-full py-3 text-lg font-black rounded-2xl bg-primary text-primary-foreground shadow-xl"
                         >
                           Register
                         </Link>
@@ -305,7 +313,7 @@ export default function Index() {
               transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
               className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight mb-4 tracking-tight max-w-5xl mx-auto"
             >
-              Smart Campus<br />
+              EduAlert<br />
               <span className="text-primary drop-shadow-sm">Announcement System</span>
             </motion.h1>
 
@@ -326,10 +334,10 @@ export default function Index() {
             >
               <Link
                 to={isAuthenticated ? dashboardPath : "/user/register"}
-                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 sm:px-12 sm:py-5 text-base font-black rounded-2xl bg-primary text-primary-foreground transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/50 hover:-translate-y-1 hover:scale-[1.03] active:scale-95 overflow-hidden"
+                className="group relative inline-flex items-center justify-center gap-2 px-6 py-3 sm:px-10 sm:py-4 text-base font-black rounded-2xl bg-primary text-primary-foreground transition-all duration-300 shadow-xl shadow-primary/25 hover:shadow-primary/50 hover:-translate-y-1 hover:scale-[1.03] active:scale-95 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  {isAuthenticated ? "Go to Dashboard" : "Register Now"} <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform" />
+                  {isAuthenticated ? "Dashboard" : "Register Now"} <ArrowRight className="h-5 w-5 group-hover:translate-x-1.5 transition-transform" />
                 </span>
                 <div className="absolute inset-0 bg-black/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
               </Link>
@@ -399,7 +407,7 @@ export default function Index() {
               Ready to Modernize Your Campus?
             </h2>
             <p className="text-primary-foreground/80 mb-6 max-w-md mx-auto">
-              Join institutions already using Smart Campus to streamline their announcements.
+              Join institutions already using EduAlert to streamline their announcements.
             </p>
             <Link
               to={isAuthenticated ? dashboardPath : "/user/register"}
@@ -417,10 +425,10 @@ export default function Index() {
           <div className="grid sm:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                  <Bell className="h-3.5 w-3.5 text-primary-foreground" />
+                <div className="h-8 w-8 rounded-lg overflow-hidden border border-border bg-white flex items-center justify-center">
+                  <img src="/logo.svg" alt="EduAlert" className="h-full w-full object-contain" />
                 </div>
-                <span className="font-semibold text-sm">Smart Campus</span>
+                <span className="font-bold text-lg tracking-tighter">EduAlert</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Modern announcement management for educational institutions.
@@ -444,7 +452,7 @@ export default function Index() {
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-border text-center text-xs text-muted-foreground">
-            © 2026 Smart Campus. All rights reserved.
+            © 2026 EduAlert. All rights reserved.
           </div>
         </div>
       </footer>

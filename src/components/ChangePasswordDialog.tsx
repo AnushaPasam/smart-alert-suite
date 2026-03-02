@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Lock, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
-export function ChangePasswordDialog() {
+export default function ChangePasswordDialog() {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);

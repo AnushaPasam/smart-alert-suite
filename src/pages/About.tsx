@@ -2,20 +2,16 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Bell, ArrowLeft, Users, Shield, Target, Award } from "lucide-react";
 import { motion } from "framer-motion";
+import Logo from "@/components/Logo";
 
 export default function About() {
-    useEffect(() => { document.title = "About Us | Smart Campus Announcement System"; }, []);
+    useEffect(() => { document.title = "About Us | EduAlert Announcement System"; }, []);
 
     return (
         <div className="min-h-screen bg-background">
             <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2.5">
-                        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                            <Bell className="h-5 w-5 text-primary-foreground" />
-                        </div>
-                        <span className="font-bold text-xl tracking-tight">Smart Campus</span>
-                    </Link>
+                    <Logo showText={true} className="scale-90 origin-left" />
                 </div>
             </header>
 
@@ -39,7 +35,7 @@ export default function About() {
                             <span className="text-primary">Communication</span>
                         </h1>
                         <p className="text-lg text-muted-foreground leading-relaxed">
-                            Smart Campus is more than just an announcement system – it's a bridge between the administration and students. Our platform ensures that critical information reaches the right audience at the right time, fostering a transparent and connected academic environment.
+                            EduAlert is more than just an announcement system – it's a bridge between the administration and students. Our platform ensures that critical information reaches the right audience at the right time, fostering a transparent and connected academic environment.
                         </p>
                         <div className="flex gap-4 pt-4">
                             <div className="flex flex-col">
@@ -101,7 +97,7 @@ export default function About() {
                     </div>
                     <div className="relative z-10 max-w-2xl mx-auto space-y-6">
                         <h2 className="text-3xl sm:text-5xl font-black">Ready to scale your campus community?</h2>
-                        <p className="text-primary-foreground/80 text-lg">Join hundreds of institutions already using Smart Campus.</p>
+                        <p className="text-primary-foreground/80 text-lg">Join hundreds of institutions already using EduAlert.</p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                             <Link to="/user/register" className="px-10 py-4 bg-white text-primary font-bold rounded-2xl hover:bg-opacity-90 transition-all shadow-xl shadow-black/10">
                                 Register Today
@@ -115,7 +111,7 @@ export default function About() {
             </main>
 
             <footer className="py-12 border-t border-border mt-20 text-center">
-                <p className="text-sm text-muted-foreground">© 2026 Smart Campus Announcement System. All rights reserved.</p>
+                <p className="text-sm text-muted-foreground">© 2026 EduAlert Announcement System. All rights reserved.</p>
             </footer>
         </div>
     );

@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { User, Mail, Building, Lock, LogOut } from "lucide-react";
-import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
+import { User, Mail, Lock, LogOut } from "lucide-react";
+const ChangePasswordDialog = lazy(() => import("@/components/ChangePasswordDialog"));
 
 export default function AnnouncerProfile() {
     const { user, logout } = useAuth();
@@ -29,7 +29,6 @@ export default function AnnouncerProfile() {
                     {[
                         { icon: User, label: "Full Name", value: user?.name || "Vikram Singh" },
                         { icon: Mail, label: "Email", value: user?.email || "announcer@campus.edu" },
-                        { icon: Building, label: "Department", value: user?.department || user?.branch || "CSE" },
                     ].map((item) => (
                         <div key={item.label} className="flex items-center gap-3 group">
                             <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
@@ -44,9 +43,15 @@ export default function AnnouncerProfile() {
                 </div>
 
                 <div className="pt-4 border-t border-border space-y-3">
-                    <ChangePasswordDialog />
+                    <Suspense fallback={<div className="h-10 w-full bg-muted animate-pulse rounded-lg" />}>
+                        <ChangePasswordDialog />
+                    </Suspense>
                     <button
-                        onClick={() => { logout(); navigate("/"); }}
+                        onClick={() => {
+                            const role = user?.role || "user";
+                            logout();
+                            navigate(`/${role}/login`);
+                        }}
                         className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
                     >
                         <LogOut className="h-4 w-4" /> Logout

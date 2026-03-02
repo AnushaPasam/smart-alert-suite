@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { Trash2, Edit, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function AdminManage() {
   const { announcements, deleteAnnouncement, categories } = useAnnouncements();
@@ -10,6 +11,16 @@ export default function AdminManage() {
   useEffect(() => { document.title = "Manage Announcements – Smart Campus"; }, []);
 
   const filtered = announcements.filter((a) => {
+    // Principal filtration logic: only show what was sent to Principal
+    const isPrincipalRelated =
+      a.status === "Approved by Principal" ||
+      a.status === "Rejected" ||
+      a.status === "Published" ||
+      a.status === "Expired" ||
+      a.status === "Archived" ||
+      a.status === "Pending Principal Approval";
+
+    if (!isPrincipalRelated) return false;
     if (filter !== "All" && a.category !== filter) return false;
     if (search && !a.title.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -72,9 +83,9 @@ export default function AdminManage() {
                   <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground">{a.expiryDate}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex gap-1">
-                      <button className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" aria-label="Edit">
+                      <Link to={`/admin/edit/${a.id}`} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" aria-label="Edit">
                         <Edit className="h-4 w-4" />
-                      </button>
+                      </Link>
                       <button onClick={() => deleteAnnouncement(a.id)}
                         className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete">
                         <Trash2 className="h-4 w-4" />

@@ -8,7 +8,7 @@ export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, user, isReady } = useAuth();
   const navigate = useNavigate();
 
   const roleLabels: Record<UserRole, string> = {
@@ -26,7 +26,13 @@ export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
   };
 
   useEffect(() => {
-    document.title = `${roleLabels[defaultRole]} Login – Smart Campus`;
+    if (isReady && isAuthenticated && user) {
+      navigate(rolePaths[user.role] || "/user/dashboard", { replace: true });
+    }
+  }, [isReady, isAuthenticated, user, navigate]);
+
+  useEffect(() => {
+    document.title = `${roleLabels[defaultRole]} Login – EduAlert`;
   }, [defaultRole]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,11 +45,11 @@ export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Bell className="h-5 w-5 text-primary-foreground" />
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
+            <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden border border-border bg-white flex items-center justify-center shadow-lg shadow-black/5">
+              <img src="/logo.svg" alt="EduAlert" className="h-full w-full object-contain" />
             </div>
-            <span className="font-bold text-lg">Smart Campus</span>
+            <span className="font-black text-xl tracking-tighter">EduAlert</span>
           </Link>
           <h1 className="text-2xl font-bold mb-1">Sign In</h1>
           <p className="text-sm text-muted-foreground">Sign in to your {roleLabels[defaultRole].toLowerCase()} account</p>

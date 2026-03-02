@@ -18,7 +18,10 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className="min-h-screen bg-background">

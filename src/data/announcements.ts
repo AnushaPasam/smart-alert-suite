@@ -27,6 +27,8 @@ export interface Announcement {
   rejectionReason?: string;
   attachment?: { name: string; type: string; size?: string };
   comments?: Comment[];
+  eventDate?: string; // Specific date for when the event happens
+  archivedAt?: string;
 }
 
 export interface Comment {
@@ -40,7 +42,7 @@ export interface Comment {
 }
 
 export const categories = [
-  "Academic", "Events", "Administrative", "Sports", "Library", "Examination", "Placement", "Hostel",
+  "Academic", "Events", "Administrative", "Sports", "Library", "Examination", "Placement",
 ];
 
 export const branches = [
@@ -54,7 +56,7 @@ export const dummyAnnouncements: Announcement[] = [
     description: "The mid-semester examination schedule for all departments has been released. Students are advised to check the timetable and prepare accordingly. Hall tickets will be available from the examination cell starting next Monday. Any discrepancies in the schedule should be reported to the respective department coordinator within 48 hours.",
     category: "Examination", department: "General", priority: "high", pinned: true,
     expiryDate: "2026-03-15", createdAt: "2026-02-25", isRead: false, isBookmarked: false, views: 342,
-    status: "Published", isUrgent: true,
+    status: "Published", isUrgent: true, eventDate: "2026-03-10",
     attachment: { name: "exam_schedule.pdf", type: "pdf", size: "2.4 MB" },
     comments: [
       {
@@ -70,7 +72,7 @@ export const dummyAnnouncements: Announcement[] = [
     description: "TCS and Infosys will be conducting a joint placement drive on campus on March 10th. Eligible students from CSE, IT, ECE, and EEE branches with CGPA above 7.0 are encouraged to register before March 5th.",
     category: "Placement", department: "CSE", priority: "high", pinned: true,
     expiryDate: "2026-03-10", createdAt: "2026-02-24", isRead: false, isBookmarked: true, views: 567,
-    status: "Published", isUrgent: false,
+    status: "Published", isUrgent: false, eventDate: "2026-03-05",
     attachment: { name: "placement_brochure.pdf", type: "pdf", size: "1.8 MB" },
   },
   {
@@ -79,7 +81,7 @@ export const dummyAnnouncements: Announcement[] = [
     description: "Registration is now open for Euphoria 2026, the annual cultural festival. Events include dance, music, drama, art exhibitions, and literary competitions. Register your teams before March 1st.",
     category: "Events", department: "General", priority: "normal", pinned: false,
     expiryDate: "2026-03-20", createdAt: "2026-02-23", isRead: true, isBookmarked: false, views: 234,
-    status: "Published", isUrgent: false,
+    status: "Published", isUrgent: false, eventDate: "2026-03-15",
   },
   {
     id: "4",
@@ -90,20 +92,12 @@ export const dummyAnnouncements: Announcement[] = [
     status: "Published", isUrgent: false,
   },
   {
-    id: "5",
-    title: "Hostel Maintenance – Water Supply Interruption",
-    description: "Due to maintenance work on the water supply system, there will be a water supply interruption in hostels A, B, and C on March 2nd from 9:00 AM to 3:00 PM.",
-    category: "Hostel", department: "General", priority: "high", pinned: false,
-    expiryDate: "2026-03-02", createdAt: "2026-02-26", isRead: false, isBookmarked: false, views: 156,
-    status: "Published", isUrgent: true,
-  },
-  {
     id: "6",
     title: "Workshop on Machine Learning with Python",
     description: "A 3-day workshop on Machine Learning with Python will be conducted by the CSE department in collaboration with Google Developers Group. Topics include regression, classification, neural networks, and hands-on projects.",
     category: "Academic", department: "CSE", priority: "normal", pinned: false,
     expiryDate: "2026-03-12", createdAt: "2026-02-21", isRead: true, isBookmarked: false, views: 298,
-    status: "Published", isUrgent: false,
+    status: "Published", isUrgent: false, eventDate: "2026-03-08",
   },
   {
     id: "7",
@@ -167,14 +161,6 @@ export const dummyAnnouncements: Announcement[] = [
     description: "Join the 24-hour hackathon themed 'Code for Change' on March 18th. Build solutions for real-world problems in healthcare, education, and sustainability. Prizes worth ₹1,00,000.",
     category: "Events", department: "CSE", priority: "normal", pinned: false,
     expiryDate: "2026-03-18", createdAt: "2026-02-13", isRead: true, isBookmarked: false, views: 312,
-    status: "Published", isUrgent: false,
-  },
-  {
-    id: "15",
-    title: "Hostel Room Allocation – New Semester",
-    description: "Room allocation for the upcoming semester will begin on March 5th. Current residents must confirm their room preferences through the hostel portal by March 3rd.",
-    category: "Hostel", department: "General", priority: "normal", pinned: false,
-    expiryDate: "2026-03-08", createdAt: "2026-02-12", isRead: false, isBookmarked: false, views: 201,
     status: "Published", isUrgent: false,
   },
   // Workflow demo items - not published

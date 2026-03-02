@@ -1,40 +1,27 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { Plus, Trash2, Tag } from "lucide-react";
 
 export default function AdminCategories() {
-  const { categories, addCategory, deleteCategory, announcements } = useAnnouncements();
-  const [newCat, setNewCat] = useState("");
+  const { categories, deleteCategory, announcements } = useAnnouncements();
 
   useEffect(() => { document.title = "Categories – Smart Campus"; }, []);
 
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newCat.trim()) {
-      addCategory(newCat.trim());
-      setNewCat("");
-    }
-  };
-
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold">Categories</h1>
-        <p className="text-sm text-muted-foreground mt-1">Manage announcement categories</p>
-      </div>
-
-      <form onSubmit={handleAdd} className="flex gap-3">
-        <input
-          type="text" value={newCat} onChange={(e) => setNewCat(e.target.value)}
-          placeholder="New category name"
-          className="flex-1 px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
-        />
-        <button type="submit"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-campus-blue-hover transition-all duration-150"
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Categories</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage announcement segments and types</p>
+        </div>
+        <Link
+          to="/admin/categories/add"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-bold uppercase tracking-widest hover:bg-campus-blue-hover transition-all duration-200 shadow-lg shadow-primary/20 hover:-translate-y-0.5"
         >
-          <Plus className="h-4 w-4" /> Add
-        </button>
-      </form>
+          <Plus className="h-4 w-4" /> Add New
+        </Link>
+      </div>
 
       <div className="space-y-2">
         {categories.map((c) => {

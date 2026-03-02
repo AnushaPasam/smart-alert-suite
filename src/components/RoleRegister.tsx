@@ -4,13 +4,17 @@ import { useAuth, type UserRole } from "@/contexts/AuthContext";
 import { branches } from "@/data/announcements";
 import { Bell, Eye, EyeOff } from "lucide-react";
 
+// Roles that should NOT show/store a branch
+const ROLES_WITHOUT_BRANCH: UserRole[] = ["announcer", "principal"];
+
 export default function RoleRegister({ role }: { role: UserRole }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [branch, setBranch] = useState(branches[0]);
+  const [rollNumber, setRollNumber] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const { register } = useAuth();
+  const { register, isAuthenticated, user, isReady } = useAuth();
   const navigate = useNavigate();
 
   const roleLabels: Record<UserRole, string> = {
@@ -28,12 +32,19 @@ export default function RoleRegister({ role }: { role: UserRole }) {
   };
 
   useEffect(() => {
-    document.title = `Register – Smart Campus`;
+    if (isReady && isAuthenticated && user) {
+      navigate(rolePaths[user.role] || "/user/dashboard", { replace: true });
+    }
+  }, [isReady, isAuthenticated, user, navigate]);
+
+  useEffect(() => {
+    document.title = `Register – EduAlert`;
   }, [role]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    register({ name: name || `New ${roleLabels[role]}`, email, password, role, branch });
+    const effectiveBranch = ROLES_WITHOUT_BRANCH.includes(role) ? "" : branch;
+    register({ name: name || `New ${roleLabels[role]}`, email, password, role, branch: effectiveBranch, rollNumber: role === "user" ? rollNumber : undefined });
     navigate(rolePaths[role]);
   };
 
@@ -43,11 +54,11 @@ export default function RoleRegister({ role }: { role: UserRole }) {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-              <Bell className="h-5 w-5 text-primary-foreground" />
+          <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
+            <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden border border-border bg-white flex items-center justify-center shadow-lg shadow-black/5">
+              <img src="/logo.svg" alt="EduAlert" className="h-full w-full object-contain" />
             </div>
-            <span className="font-bold text-lg">Smart Campus</span>
+            <span className="font-black text-xl tracking-tighter">EduAlert</span>
           </Link>
           <h1 className="text-2xl font-bold mb-1">Registration</h1>
           <p className="text-sm text-muted-foreground">Create your {roleLabels[role].toLowerCase()} account</p>
@@ -77,13 +88,23 @@ export default function RoleRegister({ role }: { role: UserRole }) {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Branch</label>
-            <select value={branch} onChange={(e) => setBranch(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors">
-              {branches.map((b) => <option key={b} value={b}>{b}</option>)}
-            </select>
-          </div>
+          {!ROLES_WITHOUT_BRANCH.includes(role) && (
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Branch</label>
+              <select value={branch} onChange={(e) => setBranch(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors">
+                {branches.map((b) => <option key={b} value={b}>{b}</option>)}
+              </select>
+            </div>
+          )}
+
+          {role === "user" && (
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Roll Number</label>
+              <input type="text" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} placeholder="Enter your roll number" required
+                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors" />
+            </div>
+          )}
 
           <button type="submit"
             className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5">

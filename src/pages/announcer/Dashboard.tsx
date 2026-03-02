@@ -1,13 +1,17 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { useCountUp } from "@/hooks/useCountUp";
-import { FileText, CheckCircle, Clock, Send, XCircle } from "lucide-react";
+import { FileText, CheckCircle, Clock, XCircle, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function StatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: number; color: string }) {
+function StatCard({ icon: Icon, label, value, color, isActive, onClick }: { icon: any; label: string; value: number; color: string; isActive?: boolean; onClick?: () => void }) {
   const count = useCountUp(value);
   return (
-    <div className="campus-card p-5 flex items-start gap-4">
+    <button
+      onClick={onClick}
+      className={`w-full text-left campus-card p-5 flex items-start gap-4 transition-all duration-200 ${isActive ? "ring-2 ring-primary ring-offset-2 scale-[1.02] shadow-md bg-card" : "hover:bg-muted/30"
+        }`}
+    >
       <div className={`h-11 w-11 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
         <Icon className="h-5 w-5" />
       </div>
@@ -15,14 +19,15 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
         <p className="text-2xl font-bold">{count}</p>
         <p className="text-sm text-muted-foreground">{label}</p>
       </div>
-    </div>
+    </button>
   );
 }
 
 export default function AnnouncerDashboard() {
   const { announcements } = useAnnouncements();
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
-  useEffect(() => { document.title = "Announcer Dashboard – Smart Campus"; }, []);
+  useEffect(() => { document.title = "Announcer Dashboard – EduAlert"; }, []);
 
   const drafts = announcements.filter((a) => a.status === "Draft").length;
   const pending = announcements.filter((a) => a.status === "Pending Admin Approval" || a.status === "Pending Principal Approval").length;
@@ -30,13 +35,20 @@ export default function AnnouncerDashboard() {
   const rejected = announcements.filter((a) => a.status === "Rejected").length;
 
   const stats = [
-    { icon: FileText, label: "Drafts", value: drafts, color: "bg-muted text-muted-foreground" },
-    { icon: Clock, label: "Pending", value: pending, color: "bg-priority-normal" },
-    { icon: CheckCircle, label: "Published", value: published, color: "bg-campus-olive-light text-campus-olive" },
-    { icon: XCircle, label: "Rejected", value: rejected, color: "bg-priority-high" },
+    { id: "Draft", icon: FileText, label: "Drafts", value: drafts, color: "bg-muted text-muted-foreground" },
+    { id: "Pending", icon: Clock, label: "Pending", value: pending, color: "bg-priority-normal" },
+    { id: "Published", icon: CheckCircle, label: "Published", value: published, color: "bg-campus-olive-light text-campus-olive" },
+    { id: "Rejected", icon: XCircle, label: "Rejected", value: rejected, color: "bg-priority-high" },
   ];
 
-  const recentAll = announcements.slice(0, 8);
+  const filteredAnnouncements = activeFilter
+    ? announcements.filter(a => {
+      if (activeFilter === "Pending") return a.status === "Pending Admin Approval" || a.status === "Pending Principal Approval";
+      return a.status === activeFilter;
+    })
+    : announcements;
+
+  const displayList = filteredAnnouncements.slice(0, 10);
 
   const statusColor = (status: string) => {
     switch (status) {
@@ -57,27 +69,48 @@ export default function AnnouncerDashboard() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s, i) => (
-          <div key={s.label} className="fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
-            <StatCard {...s} />
+          <div key={s.id} className="fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
+            <StatCard
+              {...s}
+              isActive={activeFilter === s.id}
+              onClick={() => setActiveFilter(activeFilter === s.id ? null : s.id)}
+            />
           </div>
         ))}
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-4">Recent Announcements</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">
+            {activeFilter ? `${activeFilter} Announcements` : "Recent Announcements"}
+          </h2>
+          {activeFilter && (
+            <button
+              onClick={() => setActiveFilter(null)}
+              className="text-xs text-primary hover:underline font-medium"
+            >
+              Clear Filter
+            </button>
+          )}
+        </div>
         <div className="space-y-3">
-          {recentAll.map((a) => (
-            <Link key={a.id} to={`/announcer/status/${a.id}`}
-              className="block campus-card-static p-4 hover:bg-muted/30 transition-colors">
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm truncate">{a.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{a.category} · {a.department}</p>
+          {displayList.length === 0 ? (
+            <div className="text-center py-10 campus-card-static text-muted-foreground italic">
+              No {activeFilter?.toLowerCase()} announcements found.
+            </div>
+          ) : (
+            displayList.map((a) => (
+              <Link key={a.id} to={`/announcer/status/${a.id}`}
+                className="block campus-card-static p-4 hover:bg-muted/30 transition-colors">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">{a.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{a.category} · {a.department}</p>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${statusColor(a.status)}`}>{a.status}</span>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${statusColor(a.status)}`}>{a.status}</span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )))}
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
-import { departments } from "@/data/announcements";
+import { branches } from "@/data/announcements";
 import { Sparkles, Clock, AlertTriangle, CalendarClock, Upload } from "lucide-react";
 import type { Announcement } from "@/data/announcements";
 
@@ -9,19 +9,31 @@ export default function AnnouncerCreate() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState(categories[0]);
-  const [department, setDepartment] = useState(departments[0]);
+  const [department, setDepartment] = useState(branches[0]);
   const [expiryDate, setExpiryDate] = useState("");
   const [priority, setPriority] = useState<Announcement["priority"]>("normal");
   const [pinned, setPinned] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [attachment, setAttachment] = useState<{ name: string; type: string; size: string } | null>(null);
 
   useEffect(() => { document.title = "Create Announcement – Smart Campus"; }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAttachment({
+        name: file.name,
+        type: file.type.split("/")[1] || "file",
+        size: (file.size / (1024 * 1024)).toFixed(1) + " MB"
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addAnnouncement({ title, description, category, department, expiryDate, priority, pinned, status: "Pending Admin Approval", isUrgent: false });
+    addAnnouncement({ title, description, category, department, expiryDate, priority, pinned, status: "Pending Admin Approval", isUrgent: false, attachment: attachment || undefined });
     setSubmitted(true);
-    setTitle(""); setDescription(""); setExpiryDate(""); setPinned(false); setPriority("normal");
+    setTitle(""); setDescription(""); setExpiryDate(""); setPinned(false); setPriority("normal"); setAttachment(null);
     setTimeout(() => setSubmitted(false), 3000);
   };
 
@@ -61,7 +73,7 @@ export default function AnnouncerCreate() {
             <label className="block text-sm font-medium mb-1.5">Department</label>
             <select value={department} onChange={(e) => setDepartment(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors">
-              {departments.map((d) => <option key={d} value={d}>{d}</option>)}
+              {branches.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
         </div>
@@ -76,9 +88,8 @@ export default function AnnouncerCreate() {
             <div className="flex rounded-lg border border-border overflow-hidden">
               {(["high", "normal", "low"] as const).map((p) => (
                 <button key={p} type="button" onClick={() => setPriority(p)}
-                  className={`flex-1 py-2 text-sm font-medium transition-all duration-150 capitalize ${
-                    priority === p ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
-                  }`}>{p}</button>
+                  className={`flex-1 py-2 text-sm font-medium transition-all duration-150 capitalize ${priority === p ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
+                    }`}>{p}</button>
               ))}
             </div>
           </div>
@@ -94,9 +105,15 @@ export default function AnnouncerCreate() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1.5">Attachment</label>
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:bg-muted/50 transition-colors">
+          <div
+            onClick={() => document.getElementById("fileInput")?.click()}
+            className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:bg-muted/50 transition-colors"
+          >
+            <input id="fileInput" type="file" className="hidden" onChange={handleFileChange} />
             <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">Click to upload or drag & drop</p>
+            <p className="text-sm text-muted-foreground">
+              {attachment ? `Selected: ${attachment.name}` : "Click to upload or drag & drop"}
+            </p>
             <p className="text-xs text-muted-foreground mt-1">PDF, DOC, PNG, XLS up to 10MB</p>
           </div>
         </div>

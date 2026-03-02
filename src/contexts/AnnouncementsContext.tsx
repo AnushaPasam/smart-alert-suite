@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { dummyAnnouncements, type Announcement, type AnnouncementStatus, type Comment } from "@/data/announcements";
 
 interface AnnouncementsContextType {
   announcements: Announcement[];
   toggleBookmark: (id: string) => void;
   markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  incrementViews: (id: string) => void;
   addAnnouncement: (a: Omit<Announcement, "id" | "views" | "isRead" | "isBookmarked" | "createdAt" | "comments">) => void;
   deleteAnnouncement: (id: string) => void;
   updateAnnouncement: (id: string, data: Partial<Announcement>) => void;
@@ -20,8 +22,38 @@ const AnnouncementsContext = createContext<AnnouncementsContextType | null>(null
 export function AnnouncementsProvider({ children }: { children: ReactNode }) {
   const [announcements, setAnnouncements] = useState<Announcement[]>(dummyAnnouncements);
   const [categories, setCategories] = useState<string[]>([
-    "Academic", "Events", "Administrative", "Sports", "Library", "Examination", "Placement", "Hostel",
+    "Academic", "Events", "Administrative", "Sports", "Library", "Examination", "Placement",
   ]);
+
+  useEffect(() => {
+    const runMaintenance = () => {
+      setAnnouncements((prev) => {
+        const now = new Date();
+        const twoDaysAgo = new Date(); twoDaysAgo.setDate(now.getDate() - 2);
+        const sixtyDaysAgo = new Date(); sixtyDaysAgo.setDate(now.getDate() - 60);
+
+        return prev
+          // Permanent delete: archivedAt + 60 days
+          .filter(a => {
+            if (a.status !== "Archived" || !a.archivedAt) return true;
+            return new Date(a.archivedAt) > sixtyDaysAgo;
+          })
+          // Auto-Archive: expiryDate + 2 days
+          .map(a => {
+            if (a.status === "Archived" || a.status === "Draft") return a;
+            const expiry = new Date(a.expiryDate);
+            if (expiry < twoDaysAgo) {
+              return { ...a, status: "Archived", archivedAt: now.toISOString() };
+            }
+            return a;
+          });
+      });
+    };
+
+    runMaintenance();
+    const interval = setInterval(runMaintenance, 1000 * 60 * 60 * 6); // Run every 6h
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleBookmark = useCallback((id: string) => {
     setAnnouncements((prev) =>
@@ -32,6 +64,18 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
   const markAsRead = useCallback((id: string) => {
     setAnnouncements((prev) =>
       prev.map((a) => (a.id === id ? { ...a, isRead: true } : a))
+    );
+  }, []);
+
+  const markAllAsRead = useCallback(() => {
+    setAnnouncements((prev) =>
+      prev.map((a) => ({ ...a, isRead: true }))
+    );
+  }, []);
+
+  const incrementViews = useCallback((id: string) => {
+    setAnnouncements((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, views: a.views + 1 } : a))
     );
   }, []);
 
@@ -88,7 +132,7 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
   return (
     <AnnouncementsContext.Provider
       value={{
-        announcements, toggleBookmark, markAsRead, addAnnouncement,
+        announcements, toggleBookmark, markAsRead, markAllAsRead, incrementViews, addAnnouncement,
         deleteAnnouncement, updateAnnouncement, updateStatus, addComment,
         categories, addCategory, deleteCategory,
       }}

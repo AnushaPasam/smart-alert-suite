@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { lazy, Suspense, type ReactNode } from "react";
 
 // Public pages
-import Index from "./pages/Index";
+const Index = lazy(() => import("./pages/Index"));
 
 // Lazy loaded registration pages
 const PrincipalRegister = lazy(() => import("./pages/principal/Register"));
@@ -45,12 +45,17 @@ const AdminEdit = lazy(() => import("./pages/admin/Edit"));
 const AdminForwardDecision = lazy(() => import("./pages/admin/ForwardDecision"));
 const AdminCategories = lazy(() => import("./pages/admin/Categories"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
+const AdminAddCategory = lazy(() => import("./pages/admin/AddCategory"));
+const AdminPrincipalFeedback = lazy(() => import("./pages/admin/PrincipalFeedback"));
 const AdminProfile = lazy(() => import("./pages/admin/Profile"));
 
 // Lazy loaded announcer pages
 const AnnouncerDashboard = lazy(() => import("./pages/announcer/Dashboard"));
 const AnnouncerCreate = lazy(() => import("./pages/announcer/Create"));
 const AnnouncerStatus = lazy(() => import("./pages/announcer/Status"));
+const AnnouncerStatusHistory = lazy(() => import("./pages/announcer/StatusHistory"));
+const AnnouncerDecisions = lazy(() => import("./pages/announcer/Decisions"));
+const AnnouncerArchive = lazy(() => import("./pages/announcer/Archive"));
 const AnnouncerPublish = lazy(() => import("./pages/announcer/Publish"));
 const AnnouncerProfile = lazy(() => import("./pages/announcer/Profile"));
 
@@ -67,6 +72,10 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
 
+// Super Admin pages
+const SuperAdminDashboard = lazy(() => import("./pages/superadmin/Dashboard"));
+const SuperAdminDecisions = lazy(() => import("./pages/superadmin/Decisions"));
+
 const queryClient = new QueryClient();
 
 function PageLoader() {
@@ -75,6 +84,43 @@ function PageLoader() {
       <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
     </div>
   );
+}
+
+const roleDashboards: Record<string, string> = {
+  principal: "/superadmin/dashboard",
+  admin: "/admin/dashboard",
+  announcer: "/announcer/dashboard",
+  user: "/user/dashboard",
+};
+
+/**
+ * GuestGuard – wraps login/register pages for staff roles.
+ * If the user is already authenticated, send them straight to their dashboard.
+ * If not authenticated, show the page normally.
+ */
+function GuestGuard({ children }: { children: ReactNode }) {
+  const { user, isAuthenticated, isReady } = useAuth();
+  if (!isReady) return <PageLoader />;
+  if (isAuthenticated && user) {
+    const dest = roleDashboards[user.role] ?? "/";
+    return <Navigate to={dest} replace />;
+  }
+  return <>{children}</>;
+}
+
+/**
+ * SmartEntry – used for panel root paths like /admin, /announcer, /superadmin.
+ * • Not logged in  → show Register/Sign-in page for that role
+ * • Already logged in → go straight to their dashboard
+ */
+function SmartEntry({ role }: { role: string }) {
+  const { user, isAuthenticated, isReady } = useAuth();
+  if (!isReady) return <PageLoader />;
+  if (isAuthenticated && user) {
+    const dest = roleDashboards[user.role] ?? "/";
+    return <Navigate to={dest} replace />;
+  }
+  return <Navigate to={`/${role}/register`} replace />;
 }
 
 function RoleGuard({ role, children }: { role: string; children: ReactNode }) {
@@ -99,17 +145,17 @@ function AppRoutes() {
           {/* Public */}
           <Route path="/" element={<Index />} />
 
-          {/* Role-specific registration (publicly accessible targets) */}
-          <Route path="/principal/register" element={<PrincipalRegister />} />
-          <Route path="/admin/register" element={<AdminRegister />} />
-          <Route path="/announcer/register" element={<AnnouncerRegister />} />
+          {/* Role-specific registration — guarded: already-logged-in users go to their dashboard */}
+          <Route path="/principal/register" element={<GuestGuard><PrincipalRegister /></GuestGuard>} />
+          <Route path="/admin/register" element={<GuestGuard><AdminRegister /></GuestGuard>} />
+          <Route path="/announcer/register" element={<GuestGuard><AnnouncerRegister /></GuestGuard>} />
           <Route path="/user/register" element={<UserRegister />} />
           <Route path="/register" element={<Navigate to="/user/register" replace />} />
 
-          {/* Role-specific logins */}
-          <Route path="/principal/login" element={<PrincipalLogin />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/announcer/login" element={<AnnouncerLogin />} />
+          {/* Role-specific logins — guarded: already-logged-in users go to their dashboard */}
+          <Route path="/principal/login" element={<GuestGuard><PrincipalLogin /></GuestGuard>} />
+          <Route path="/admin/login" element={<GuestGuard><AdminLogin /></GuestGuard>} />
+          <Route path="/announcer/login" element={<GuestGuard><AnnouncerLogin /></GuestGuard>} />
           <Route path="/user/login" element={<UserLogin />} />
           {/* Backwards compat */}
           <Route path="/login" element={<Navigate to="/user/login" replace />} />
@@ -121,6 +167,7 @@ function AppRoutes() {
           <Route path="/about" element={<About />} />
 
           {/* Principal */}
+          <Route path="/principal" element={<SmartEntry role="principal" />} />
           <Route path="/principal/dashboard" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalDashboard /></PrincipalLayout></RoleGuard>} />
           <Route path="/principal/approval-queue" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalApprovalQueue /></PrincipalLayout></RoleGuard>} />
           <Route path="/principal/analytics" element={<RoleGuard role="principal"><PrincipalLayout><PrincipalAnalytics /></PrincipalLayout></RoleGuard>} />
@@ -135,16 +182,21 @@ function AppRoutes() {
           <Route path="/admin/edit/:id" element={<RoleGuard role="admin"><AdminLayout><AdminEdit /></AdminLayout></RoleGuard>} />
           <Route path="/admin/forward-decision" element={<RoleGuard role="admin"><AdminLayout><AdminForwardDecision /></AdminLayout></RoleGuard>} />
           <Route path="/admin/categories" element={<RoleGuard role="admin"><AdminLayout><AdminCategories /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/categories/add" element={<RoleGuard role="admin"><AdminLayout><AdminAddCategory /></AdminLayout></RoleGuard>} />
           <Route path="/admin/analytics" element={<RoleGuard role="admin"><AdminLayout><AdminAnalytics /></AdminLayout></RoleGuard>} />
+          <Route path="/admin/principal-feedback" element={<RoleGuard role="admin"><AdminLayout><AdminPrincipalFeedback /></AdminLayout></RoleGuard>} />
           <Route path="/admin/profile" element={<RoleGuard role="admin"><AdminLayout><AdminProfile /></AdminLayout></RoleGuard>} />
-          {/* Backwards compat */}
-          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          {/* Admin root – smart: login if guest, dashboard if authenticated */}
+          <Route path="/admin" element={<SmartEntry role="admin" />} />
 
           {/* Announcer */}
+          <Route path="/announcer/archive" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerArchive /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/dashboard" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerDashboard /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/announcement/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><UserDetail /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/create" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerCreate /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/status/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerStatus /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/status-history" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerStatusHistory /></AnnouncerLayout></RoleGuard>} />
+          <Route path="/announcer/decisions" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerDecisions /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/publish/:id" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerPublish /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/publish" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerPublish /></AnnouncerLayout></RoleGuard>} />
           <Route path="/announcer/profile" element={<RoleGuard role="announcer"><AnnouncerLayout><AnnouncerProfile /></AnnouncerLayout></RoleGuard>} />
@@ -155,10 +207,16 @@ function AppRoutes() {
           <Route path="/user/archive" element={<RoleGuard role="user"><UserLayout><UserArchive /></UserLayout></RoleGuard>} />
           <Route path="/user/saved" element={<RoleGuard role="user"><UserLayout><UserSaved /></UserLayout></RoleGuard>} />
           <Route path="/user/profile" element={<RoleGuard role="user"><UserLayout><UserProfile /></UserLayout></RoleGuard>} />
-          {/* Backwards compat */}
+          {/* Backwards compat – student aliases still go to user dashboard */}
           <Route path="/student" element={<Navigate to="/user/dashboard" replace />} />
           <Route path="/student/*" element={<Navigate to="/user/dashboard" replace />} />
-          <Route path="/superadmin" element={<Navigate to="/principal/dashboard" replace />} />
+          {/* Announcer root – smart: login if guest, dashboard if authenticated */}
+          <Route path="/announcer" element={<SmartEntry role="announcer" />} />
+          {/* Super Admin */}
+          <Route path="/superadmin/dashboard" element={<RoleGuard role="principal"><SuperAdminDashboard /></RoleGuard>} />
+          <Route path="/superadmin/decisions" element={<RoleGuard role="principal"><SuperAdminDecisions /></RoleGuard>} />
+          <Route path="/superadmin" element={<SmartEntry role="principal" />} />
+          <Route path="/superadmin/*" element={<Navigate to="/superadmin/dashboard" replace />} />
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />

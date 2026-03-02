@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { Sparkles, Clock, AlertTriangle, CalendarClock, Upload } from "lucide-react";
-import { departments } from "@/data/announcements";
+import { branches } from "@/data/announcements";
 import type { Announcement } from "@/data/announcements";
 
 export default function AdminCreate() {
@@ -9,7 +9,7 @@ export default function AdminCreate() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState(categories[0]);
-  const [department, setDepartment] = useState(departments[0]);
+  const [department, setDepartment] = useState(branches[0]);
   const [expiryDate, setExpiryDate] = useState("");
   const [priority, setPriority] = useState<Announcement["priority"]>("normal");
   const [pinned, setPinned] = useState(false);
@@ -63,7 +63,7 @@ export default function AdminCreate() {
             <label className="block text-sm font-medium mb-1.5">Department</label>
             <select value={department} onChange={(e) => setDepartment(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors">
-              {departments.map((d) => <option key={d} value={d}>{d}</option>)}
+              {branches.map((d) => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
         </div>
@@ -79,9 +79,8 @@ export default function AdminCreate() {
             <div className="flex rounded-lg border border-border overflow-hidden">
               {(["high", "normal", "low"] as const).map((p) => (
                 <button key={p} type="button" onClick={() => setPriority(p)}
-                  className={`flex-1 py-2 text-sm font-medium transition-all duration-150 capitalize ${
-                    priority === p ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
-                  }`}>{p}</button>
+                  className={`flex-1 py-2 text-sm font-medium transition-all duration-150 capitalize ${priority === p ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
+                    }`}>{p}</button>
               ))}
             </div>
           </div>

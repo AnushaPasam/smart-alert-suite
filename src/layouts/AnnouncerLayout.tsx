@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
-import { LayoutDashboard, PlusCircle, Send, User, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Send, User, LogOut, Menu, X, History, Archive, CheckCircle2 } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/announcer/dashboard", icon: LayoutDashboard },
   { label: "Create", path: "/announcer/create", icon: PlusCircle },
+  { label: "Submissions", path: "/announcer/status-history", icon: History },
+  { label: "Decisions", path: "/announcer/decisions", icon: CheckCircle2 },
+  { label: "Archive", path: "/announcer/archive", icon: Archive },
   { label: "Publish", path: "/announcer/publish", icon: Send },
 ];
 
@@ -16,7 +19,11 @@ export default function AnnouncerLayout({ children }: { children: React.ReactNod
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const handleLogout = () => {
+    const role = user?.role || "user";
+    logout();
+    navigate(`/${role}/login`);
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -27,7 +34,7 @@ export default function AnnouncerLayout({ children }: { children: React.ReactNod
       <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}>
         <div className="p-5 border-b border-border flex items-center justify-between">
-          <Logo to="/" className="scale-90 origin-left" />
+          <Logo to="/announcer/dashboard" className="scale-90 origin-left" />
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>

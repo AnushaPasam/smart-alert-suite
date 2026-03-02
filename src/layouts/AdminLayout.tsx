@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
 import {
   LayoutDashboard, List, Tags, BarChart3, User, LogOut, Menu, X,
-  CheckCircle, ArrowRight,
+  CheckCircle, ArrowRight, CheckCircle2,
 } from "lucide-react";
 
 const navItems = [
@@ -12,6 +12,7 @@ const navItems = [
   { label: "Manage", path: "/admin/manage", icon: List },
   { label: "Review Queue", path: "/admin/review-queue", icon: CheckCircle },
   { label: "Forward Decision", path: "/admin/forward-decision", icon: ArrowRight },
+  { label: "Principal Feedback", path: "/admin/principal-feedback", icon: CheckCircle2 },
   { label: "Categories", path: "/admin/categories", icon: Tags },
   { label: "Analytics", path: "/admin/analytics", icon: BarChart3 },
 ];
@@ -22,7 +23,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleLogout = () => { logout(); navigate("/"); };
+  const handleLogout = () => {
+    const role = user?.role || "user";
+    logout();
+    navigate(`/${role}/login`);
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -33,7 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className={`fixed lg:sticky top-0 left-0 z-50 h-screen w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}>
         <div className="p-5 border-b border-border flex items-center justify-between">
-          <Logo to="/" className="scale-90 origin-left" />
+          <Logo to="/admin/dashboard" className="scale-90 origin-left" />
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
