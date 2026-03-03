@@ -20,29 +20,50 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: "EduAlert",
         short_name: "EduAlert",
-        description: "Stay updated with college announcements, events, and important notices in real-time.",
+        description:
+          "Stay updated with college announcements, events, and important notices in real-time.",
         theme_color: "#3b82f6",
         icons: [
           {
             src: "pwa-192x192.png",
             sizes: "192x192",
-            type: "image/png"
-          },
-          {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png"
+            type: "image/png",
           },
           {
             src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable"
-          }
-        ]
-      }
-    })
+          },
+          {
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+        ],
+      },
+    }),
   ].filter(Boolean),
+  build: {
+    target: "esnext",
+    minify: "esbuild",
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "ui-vendor": [
+            "@radix-ui/react-accordion",
+            "@radix-ui/react-dialog",
+            "lucide-react",
+          ],
+          "charts-vendor": ["recharts", "date-fns"],
+          "framer-vendor": ["framer-motion"],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 
-export function useCountUp(target: number, duration = 800, startOnMount = true) {
+export function useCountUp(
+  target: number,
+  duration = 800,
+  startOnMount = true,
+) {
   const [count, setCount] = useState(0);
   const started = useRef(false);
 

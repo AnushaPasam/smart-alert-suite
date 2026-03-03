@@ -1,37 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="EduAlert Announcement Management System – Stay updated with college announcements, events, and important notices in real-time."
+    />
+    <meta
+      name="keywords"
+      content="campus announcements, college management, student portal, academic notifications"
+    />
+    <meta name="author" content="EduAlert" />
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/logo.svg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="EduAlert Announcement Management System – Stay updated with college announcements, events, and important notices in real-time.">
-  <meta name="keywords" content="campus announcements, college management, student portal, academic notifications" />
-  <meta name="author" content="EduAlert" />
+    <meta property="og:type" content="website" />
+    <title>EduAlert – Announcement Management System</title>
 
+    <!-- Critical Preloads -->
+    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <meta property="og:type" content="website" />
-  <title>EduAlert – Announcement Management System</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
-    rel="stylesheet" />
-  <meta property="og:title" content="EduAlert – Announcement Management System">
-  <meta name="twitter:title" content="EduAlert – Announcement Management System">
-  <meta property="og:description"
-    content="EduAlert Announcement Management System – Stay updated with college announcements, events, and important notices in real-time.">
-  <meta name="twitter:description"
-    content="EduAlert Announcement Management System – Stay updated with college announcements, events, and important notices in real-time.">
-  <meta property="og:image" content="/logo.svg">
-  <meta name="twitter:image" content="/logo.svg">
-  <meta name="twitter:card" content="summary_large_image">
-</head>
+    <!-- Font Optimization -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
-</body>
+    <meta
+      property="og:title"
+      content="EduAlert – Announcement Management System"
+    />
+    <meta
+      name="twitter:title"
+      content="EduAlert – Announcement Management System"
+    />
+    <meta
+      property="og:description"
+      content="EduAlert Announcement Management System – Stay updated with college announcements, events, and important notices in real-time."
+    />
+    <meta
+      name="twitter:description"
+      content="EduAlert Announcement Management System – Stay updated with college announcements, events, and important notices in real-time."
+    />
+    <meta property="og:image" content="/logo.svg" />
+    <meta name="twitter:image" content="/logo.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
 
+    <!-- Performance Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#4F46E5" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 export type UserRole = "principal" | "admin" | "announcer" | "user";
 
@@ -14,7 +22,15 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, role: UserRole) => void;
-  register: (data: { name: string; email: string; password: string; role: UserRole; branch: string; rollNumber?: string; department?: string }) => void;
+  register: (data: {
+    name: string;
+    email: string;
+    password: string;
+    role: UserRole;
+    branch: string;
+    rollNumber?: string;
+    department?: string;
+  }) => void;
   logout: () => void;
   updateUser: (data: Partial<User>) => void;
   isAuthenticated: boolean;
@@ -23,7 +39,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const roleDefaults: Record<UserRole, { name: string; branch: string; department?: string }> = {
+const roleDefaults: Record<
+  UserRole,
+  { name: string; branch: string; department?: string }
+> = {
   principal: { name: "Dr. Rajesh Verma", branch: "" },
   admin: { name: "Prof. Anita Sharma", branch: "CSE", department: "CSE" },
   announcer: { name: "Vikram Singh", branch: "", department: "CSE" },
@@ -37,44 +56,88 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("authUser");
     if (stored) {
-      try { setUser(JSON.parse(stored)); } catch { /* ignore */ }
+      try {
+        setUser(JSON.parse(stored));
+      } catch {
+        /* ignore */
+      }
     }
     setIsReady(true);
   }, []);
 
-  const login = useCallback((email: string, _password: string, role: UserRole) => {
-    // Check if the user was previously registered to get their registered name
-    const storedUsers = localStorage.getItem("registeredUsers");
-    const users = storedUsers ? JSON.parse(storedUsers) : [];
-    const existingUser = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+  const login = useCallback(
+    (email: string, _password: string, role: UserRole) => {
+      // Check if the user was previously registered to get their registered name
+      const storedUsers = localStorage.getItem("registeredUsers");
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+      const existingUser = users.find(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (u: any) => u.email.toLowerCase() === email.toLowerCase(),
+      );
 
-    const defaults = roleDefaults[role];
-    const newUser: User = {
-      name: existingUser ? existingUser.name : defaults.name,
-      email,
-      role,
-      branch: existingUser ? existingUser.branch : defaults.branch,
-      rollNumber: existingUser ? existingUser.rollNumber : undefined,
-      department: defaults.department,
-    };
-    setUser(newUser);
-    localStorage.setItem("authUser", JSON.stringify(newUser));
-  }, []);
+      const defaults = roleDefaults[role];
+      const newUser: User = {
+        name: existingUser ? existingUser.name : defaults.name,
+        email,
+        role,
+        branch: existingUser ? existingUser.branch : defaults.branch,
+        rollNumber: existingUser ? existingUser.rollNumber : undefined,
+        department: defaults.department,
+      };
+      setUser(newUser);
+      localStorage.setItem("authUser", JSON.stringify(newUser));
+    },
+    [],
+  );
 
-  const register = useCallback((data: { name: string; email: string; password: string; role: UserRole; branch: string; rollNumber?: string; department?: string }) => {
-    const rolesWithoutBranch: UserRole[] = ["announcer", "principal"];
-    const branch = rolesWithoutBranch.includes(data.role) ? undefined : data.branch;
-    const newUser: User = { name: data.name, email: data.email, role: data.role, branch: branch || "", rollNumber: data.rollNumber, department: data.department };
+  const register = useCallback(
+    (data: {
+      name: string;
+      email: string;
+      password: string;
+      role: UserRole;
+      branch: string;
+      rollNumber?: string;
+      department?: string;
+    }) => {
+      const rolesWithoutBranch: UserRole[] = ["announcer", "principal"];
+      const branch = rolesWithoutBranch.includes(data.role)
+        ? undefined
+        : data.branch;
+      const newUser: User = {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        branch: branch || "",
+        rollNumber: data.rollNumber,
+        department: data.department,
+      };
 
-    // Store in general registered users list for persistence across sessions
-    const storedUsers = localStorage.getItem("registeredUsers");
-    const users = storedUsers ? JSON.parse(storedUsers) : [];
-    const otherUsers = users.filter((u: any) => u.email.toLowerCase() !== data.email.toLowerCase());
-    localStorage.setItem("registeredUsers", JSON.stringify([...otherUsers, { name: data.name, email: data.email, rollNumber: data.rollNumber, ...(branch ? { branch } : {}) }]));
+      // Store in general registered users list for persistence across sessions
+      const storedUsers = localStorage.getItem("registeredUsers");
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+      const otherUsers = users.filter(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (u: any) => u.email.toLowerCase() !== data.email.toLowerCase(),
+      );
+      localStorage.setItem(
+        "registeredUsers",
+        JSON.stringify([
+          ...otherUsers,
+          {
+            name: data.name,
+            email: data.email,
+            rollNumber: data.rollNumber,
+            ...(branch ? { branch } : {}),
+          },
+        ]),
+      );
 
-    setUser(newUser);
-    localStorage.setItem("authUser", JSON.stringify(newUser));
-  }, []);
+      setUser(newUser);
+      localStorage.setItem("authUser", JSON.stringify(newUser));
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     setUser(null);
@@ -91,10 +154,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedUsers = localStorage.getItem("registeredUsers");
       if (storedUsers) {
         let users = JSON.parse(storedUsers);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         users = users.map((u: any) =>
           u.email.toLowerCase() === updated.email.toLowerCase()
-            ? { ...u, name: updated.name, branch: updated.branch, rollNumber: updated.rollNumber }
-            : u
+            ? {
+                ...u,
+                name: updated.name,
+                branch: updated.branch,
+                rollNumber: updated.rollNumber,
+              }
+            : u,
         );
         localStorage.setItem("registeredUsers", JSON.stringify(users));
       }
@@ -104,7 +173,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, updateUser, isAuthenticated: !!user, isReady }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        updateUser,
+        isAuthenticated: !!user,
+        isReady,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

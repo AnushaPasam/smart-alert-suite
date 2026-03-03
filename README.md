@@ -28,16 +28,19 @@ EduAlert is a modern, role-based platform for managing and receiving campus anno
 ### Installation
 
 1. Clone the repository:
+
    ```sh
    git clone <your-repo-url>
    ```
 
 2. Install dependencies:
+
    ```sh
    npm install
    ```
 
 3. Start the development server:
+
    ```sh
    npm run dev
    ```

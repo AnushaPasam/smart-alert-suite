@@ -3,19 +3,26 @@ import { Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 
-export default function NotificationBell({ basePath = "/user" }: { basePath?: string }) {
+export default function NotificationBell({
+  basePath = "/user",
+}: {
+  basePath?: string;
+}) {
   const { announcements } = useAnnouncements();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const lastVisit = parseInt(localStorage.getItem("lastVisit") || "0", 10);
   const published = announcements.filter((a) => a.status === "Published");
-  const unread = published.filter((a) => new Date(a.createdAt).getTime() > lastVisit);
+  const unread = published.filter(
+    (a) => new Date(a.createdAt).getTime() > lastVisit,
+  );
   const unreadCount = unread.length;
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -40,7 +47,10 @@ export default function NotificationBell({ basePath = "/user" }: { basePath?: st
   };
 
   const recentNotifications = published
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )
     .slice(0, 10);
 
   return (
@@ -80,15 +90,25 @@ export default function NotificationBell({ basePath = "/user" }: { basePath?: st
                   >
                     <div className="flex items-start gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{a.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{a.description}</p>
+                        <p className="text-sm font-medium truncate">
+                          {a.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                          {a.description}
+                        </p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-campus-olive-light text-campus-olive font-medium">{a.category}</span>
-                          <span className="text-xs text-muted-foreground">{formatTime(a.createdAt)}</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-campus-olive-light text-campus-olive font-medium">
+                            {a.category}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatTime(a.createdAt)}
+                          </span>
                         </div>
                       </div>
                       {isNew && (
-                        <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-semibold">New</span>
+                        <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-semibold">
+                          New
+                        </span>
                       )}
                     </div>
                   </Link>

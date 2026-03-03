@@ -6,14 +6,18 @@ import { Plus, Trash2, Tag } from "lucide-react";
 export default function AdminCategories() {
   const { categories, deleteCategory, announcements } = useAnnouncements();
 
-  useEffect(() => { document.title = "Categories – Smart Campus"; }, []);
+  useEffect(() => {
+    document.title = "Categories – Smart Campus";
+  }, []);
 
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Categories</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage announcement segments and types</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage announcement segments and types
+          </p>
         </div>
         <Link
           to="/admin/categories/add"
@@ -27,11 +31,16 @@ export default function AdminCategories() {
         {categories.map((c) => {
           const count = announcements.filter((a) => a.category === c).length;
           return (
-            <div key={c} className="campus-card-static px-4 py-3 flex items-center justify-between">
+            <div
+              key={c}
+              className="campus-card-static px-4 py-3 flex items-center justify-between"
+            >
               <div className="flex items-center gap-3">
                 <Tag className="h-4 w-4 text-campus-olive" />
                 <span className="text-sm font-medium">{c}</span>
-                <span className="text-xs text-muted-foreground">{count} announcements</span>
+                <span className="text-xs text-muted-foreground">
+                  {count} announcements
+                </span>
               </div>
               <button
                 onClick={() => deleteCategory(c)}

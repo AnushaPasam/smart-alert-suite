@@ -1,79 +1,131 @@
-import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  lazy,
+  Suspense,
+} from "react";
 import { useAnnouncements } from "@/contexts/AnnouncementsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { sortAnnouncements } from "@/data/announcements";
 import AnnouncementCard from "@/components/AnnouncementCard";
 import SkeletonCard from "@/components/SkeletonCard";
-import { Search, Filter, CheckCircle2, LayoutGrid, Clock, AlertCircle, Bookmark, ArrowUpDown, Calendar as CalendarIcon, List as ListIcon, ChevronDown } from "lucide-react";
+import {
+  Search,
+  Filter,
+  CheckCircle2,
+  LayoutGrid,
+  Clock,
+  AlertCircle,
+  Bookmark,
+  ArrowUpDown,
+  Calendar as CalendarIcon,
+  List as ListIcon,
+  ChevronDown,
+} from "lucide-react";
+import { useDebounce } from "@/hooks/useDebounce";
+
 const CalendarView = lazy(() => import("@/components/CalendarView"));
 
 const BATCH_SIZE = 10;
 
 export default function UserDashboard() {
-  const { announcements, toggleBookmark, markAllAsRead, categories } = useAnnouncements();
+  const { announcements, toggleBookmark, markAllAsRead, categories } =
+    useAnnouncements();
   const { user } = useAuth();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [readFilter, setReadFilter] = useState<"All" | "Unread" | "Read">("All");
+  const [readFilter, setReadFilter] = useState<"All" | "Unread" | "Read">(
+    "All",
+  );
   const [filterPriority, setFilterPriority] = useState<"all" | "high">("all");
-  const [sortBy, setSortBy] = useState<"Default" | "Newest" | "Views">("Default");
+  const [sortBy, setSortBy] = useState<"Default" | "Newest" | "Views">(
+    "Default",
+  );
   const [viewMode, setViewMode] = useState<"List" | "Calendar">("List");
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [loading, setLoading] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { document.title = "Dashboard – EduAlert"; }, []);
+  useEffect(() => {
+    document.title = "Dashboard – EduAlert";
+  }, []);
 
   // Only show published announcements to users, auto-archive expired
-  const published = useMemo(() => announcements.filter((a) => a.status === "Published"), [announcements]);
-  const now = new Date();
-  const active = useMemo(() => published.filter((a) => new Date(a.expiryDate) >= now), [published]);
+  const published = useMemo(
+    () => announcements.filter((a) => a.status === "Published"),
+    [announcements],
+  );
+  const active = useMemo(() => {
+    const now = new Date();
+    return published.filter((a) => new Date(a.expiryDate) >= now);
+  }, [published]);
 
   // Stats calculation
-  const stats = useMemo(() => ({
-    total: active.length,
-    unread: active.filter(a => !a.isRead).length,
-    urgent: active.filter(a => a.priority === "high").length,
-    bookmarks: active.filter(a => a.isBookmarked).length
-  }), [active]);
+  const stats = useMemo(
+    () => ({
+      total: active.length,
+      unread: active.filter((a) => !a.isRead).length,
+      urgent: active.filter((a) => a.priority === "high").length,
+      bookmarks: active.filter((a) => a.isBookmarked).length,
+    }),
+    [active],
+  );
 
   const filtered = useMemo(() => {
     let result = [...active];
 
     // Priority filter
     if (filterPriority === "high") {
-      result = result.filter(a => a.priority === "high");
+      result = result.filter((a) => a.priority === "high");
     }
 
     // Category filter
     if (categoryFilter !== "All") {
-      result = result.filter(a => a.category === categoryFilter);
+      result = result.filter((a) => a.category === categoryFilter);
     }
 
     // Read filter
     if (readFilter === "Unread") {
-      result = result.filter(a => !a.isRead);
+      result = result.filter((a) => !a.isRead);
     } else if (readFilter === "Read") {
-      result = result.filter(a => a.isRead);
+      result = result.filter((a) => a.isRead);
     }
 
-    // Search
-    if (search) {
-      const s = search.toLowerCase();
-      result = result.filter(a => a.title.toLowerCase().includes(s) || a.description.toLowerCase().includes(s));
+    // Search (Using debouncedSearch for performance)
+    if (debouncedSearch) {
+      const s = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (a) =>
+          a.title.toLowerCase().includes(s) ||
+          a.description.toLowerCase().includes(s),
+      );
     }
 
     // Sorting
     if (sortBy === "Default") {
       return sortAnnouncements(result);
     } else if (sortBy === "Newest") {
-      return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return result.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
     } else if (sortBy === "Views") {
       return result.sort((a, b) => b.views - a.views);
     }
 
     return result;
-  }, [active, categoryFilter, readFilter, filterPriority, search, sortBy]);
+  }, [
+    active,
+    categoryFilter,
+    readFilter,
+    filterPriority,
+    debouncedSearch,
+    sortBy,
+  ]);
 
   const visible = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
@@ -83,23 +135,29 @@ export default function UserDashboard() {
       if (entries[0].isIntersecting && hasMore && !loading) {
         setLoading(true);
         setTimeout(() => {
-          setVisibleCount((prev) => Math.min(prev + BATCH_SIZE, filtered.length));
+          setVisibleCount((prev) =>
+            Math.min(prev + BATCH_SIZE, filtered.length),
+          );
           setLoading(false);
         }, 400);
       }
     },
-    [hasMore, loading, filtered.length]
+    [hasMore, loading, filtered.length],
   );
 
   useEffect(() => {
     const el = loadMoreRef.current;
     if (!el) return;
-    const observer = new IntersectionObserver(observerCallback, { threshold: 0.1 });
+    const observer = new IntersectionObserver(observerCallback, {
+      threshold: 0.1,
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, [observerCallback]);
 
-  useEffect(() => { setVisibleCount(BATCH_SIZE); }, [search, categoryFilter, readFilter, filterPriority, sortBy]);
+  useEffect(() => {
+    setVisibleCount(BATCH_SIZE);
+  }, [debouncedSearch, categoryFilter, readFilter, filterPriority, sortBy]);
 
   const getTimeGreeting = () => {
     const hour = new Date().getHours();
@@ -109,7 +167,6 @@ export default function UserDashboard() {
   };
 
   const handleStatClick = (label: string) => {
-    // Reset all filters first for a clean state
     setSearch("");
     setCategoryFilter("All");
     setReadFilter("All");
@@ -119,12 +176,7 @@ export default function UserDashboard() {
       setReadFilter("Unread");
     } else if (label === "Urgent") {
       setFilterPriority("high");
-    } else if (label === "Saved") {
-      // We don't have a bookmarked filter yet, let's keep it as is or handle it
-      // For now, let's just reset everything for "Total"
     }
-
-    // Switch to List view if in Calendar
     setViewMode("List");
   };
 
@@ -135,7 +187,10 @@ export default function UserDashboard() {
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              {getTimeGreeting()}, <span className="text-primary">{user?.name?.split(' ')[0] || "Student"}!</span>
+              {getTimeGreeting()},{" "}
+              <span className="text-primary">
+                {user?.name?.split(" ")[0] || "Student"}!
+              </span>
             </h1>
             <p className="text-sm text-muted-foreground mt-1 tabular-nums">
               You have {stats.unread} unread announcements today.
@@ -169,25 +224,61 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* Stats Summary Card */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total", value: stats.total, icon: LayoutGrid, color: "text-blue-500", bg: "bg-blue-500/10", active: filterPriority === "all" && readFilter === "All" && categoryFilter === "All" },
-          { label: "Unread", value: stats.unread, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10", active: readFilter === "Unread" },
-          { label: "Urgent", value: stats.urgent, icon: AlertCircle, color: "text-rose-500", bg: "bg-rose-500/10", active: filterPriority === "high" },
-          { label: "Saved", value: stats.bookmarks, icon: Bookmark, color: "text-emerald-500", bg: "bg-emerald-500/10", active: false /* Not yet implemented */ },
+          {
+            label: "Total",
+            value: stats.total,
+            icon: LayoutGrid,
+            color: "text-blue-500",
+            bg: "bg-blue-500/10",
+            active:
+              filterPriority === "all" &&
+              readFilter === "All" &&
+              categoryFilter === "All",
+          },
+          {
+            label: "Unread",
+            value: stats.unread,
+            icon: Clock,
+            color: "text-amber-500",
+            bg: "bg-amber-500/10",
+            active: readFilter === "Unread",
+          },
+          {
+            label: "Urgent",
+            value: stats.urgent,
+            icon: AlertCircle,
+            color: "text-rose-500",
+            bg: "bg-rose-500/10",
+            active: filterPriority === "high",
+          },
+          {
+            label: "Saved",
+            value: stats.bookmarks,
+            icon: Bookmark,
+            color: "text-emerald-500",
+            bg: "bg-emerald-500/10",
+            active: false,
+          },
         ].map((stat) => (
           <button
             key={stat.label}
             onClick={() => handleStatClick(stat.label)}
-            className={`campus-card p-4 flex items-center gap-3 transition-all hover:-translate-y-1 text-left w-full ${stat.active ? 'ring-2 ring-primary ring-offset-2 bg-primary/5 shadow-md shadow-primary/10' : ''}`}
+            className={`campus-card p-4 flex items-center gap-3 transition-all hover:-translate-y-1 text-left w-full ${stat.active ? "ring-2 ring-primary ring-offset-2 bg-primary/5 shadow-md shadow-primary/10" : ""}`}
           >
-            <div className={`h-10 w-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}>
+            <div
+              className={`h-10 w-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center shrink-0`}
+            >
               <stat.icon className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-bold tabular-nums leading-none">{stat.value}</p>
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mt-1">{stat.label}</p>
+              <p className="text-sm font-bold tabular-nums leading-none">
+                {stat.value}
+              </p>
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mt-1">
+                {stat.label}
+              </p>
             </div>
           </button>
         ))}
@@ -195,7 +286,6 @@ export default function UserDashboard() {
 
       {viewMode === "List" ? (
         <>
-          {/* Controls */}
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1 w-full">
@@ -214,10 +304,14 @@ export default function UserDashboard() {
                   <select
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer shadow-sm truncate"
+                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-input bg-card text-sm appearance-none cursor-pointer shadow-sm truncate"
                   >
                     <option value="All">All Categories</option>
-                    {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -225,8 +319,12 @@ export default function UserDashboard() {
                   <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none cursor-pointer shadow-sm truncate"
+                    onChange={(e) =>
+                      setSortBy(
+                        e.target.value as "Default" | "Newest" | "Views",
+                      )
+                    }
+                    className="w-full pl-10 pr-10 py-3 rounded-xl border border-input bg-card text-sm appearance-none cursor-pointer shadow-sm truncate"
                   >
                     <option value="Default">Default Sort</option>
                     <option value="Newest">Newest First</option>
@@ -237,15 +335,16 @@ export default function UserDashboard() {
               </div>
             </div>
 
-            {/* Read/Unread Filter Switcher */}
             <div className="flex items-center justify-between">
               <div className="flex p-0.5 w-fit rounded-lg bg-muted/50 border border-border">
                 {(["All", "Unread", "Read"] as const).map((filter) => (
                   <button
                     key={filter}
-                    onClick={() => { setReadFilter(filter); setFilterPriority("all"); }}
-                    className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${readFilter === filter && filterPriority === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                      }`}
+                    onClick={() => {
+                      setReadFilter(filter);
+                      setFilterPriority("all");
+                    }}
+                    className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all ${readFilter === filter && filterPriority === "all" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                   >
                     {filter}
                   </button>
@@ -255,38 +354,61 @@ export default function UserDashboard() {
               {filterPriority === "high" && (
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/20 text-xs font-bold animate-in fade-in slide-in-from-right-2">
                   <AlertCircle className="h-3.5 w-3.5" /> Filtering by Urgent
-                  <button onClick={() => setFilterPriority("all")} className="ml-1 hover:text-rose-700 transition-colors">&times;</button>
+                  <button
+                    onClick={() => setFilterPriority("all")}
+                    className="ml-1 hover:text-rose-700 transition-colors"
+                  >
+                    &times;
+                  </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {visible.map((a, i) => (
-              <div key={a.id} className="fade-in-up" style={{ animationDelay: `${Math.min(i, 5) * 40}ms` }}>
-                <AnnouncementCard announcement={a} onToggleBookmark={toggleBookmark} basePath="/user" />
+              <div
+                key={a.id}
+                className="fade-in-up"
+                style={{ animationDelay: `${Math.min(i, 5) * 40}ms` }}
+              >
+                <AnnouncementCard
+                  announcement={a}
+                  onToggleBookmark={toggleBookmark}
+                  basePath="/user"
+                />
               </div>
             ))}
           </div>
 
           {loading && (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
             </div>
           )}
 
           {hasMore && <div ref={loadMoreRef} className="h-4" />}
 
           {!hasMore && visible.length > 0 && (
-            <p className="text-center text-sm text-muted-foreground py-4">You've reached the end.</p>
+            <p className="text-center text-sm text-muted-foreground py-4">
+              You've reached the end.
+            </p>
           )}
 
           {visible.length === 0 && !loading && (
             <div className="text-center py-20 bg-card/50 rounded-2xl border border-dashed border-border">
-              <p className="text-muted-foreground font-medium">No announcements match your filters</p>
+              <p className="text-muted-foreground font-medium">
+                No announcements match your filters
+              </p>
               <button
-                onClick={() => { setSearch(""); setCategoryFilter("All"); setReadFilter("All"); setFilterPriority("all"); }}
+                onClick={() => {
+                  setSearch("");
+                  setCategoryFilter("All");
+                  setReadFilter("All");
+                  setFilterPriority("all");
+                }}
                 className="text-primary text-xs font-semibold mt-2 hover:underline"
               >
                 Clear all filters
@@ -295,12 +417,16 @@ export default function UserDashboard() {
           )}
         </>
       ) : (
-        <Suspense fallback={
-          <div className="flex flex-col items-center justify-center py-40 campus-card-static bg-card/20 border border-dashed border-border/50">
-            <div className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4" />
-            <p className="text-sm font-bold text-muted-foreground animate-pulse">Initializing Calendar View...</p>
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="flex flex-col items-center justify-center py-40 campus-card-static bg-card/20 border border-dashed border-border/50">
+              <div className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent animate-spin mb-4" />
+              <p className="text-sm font-bold text-muted-foreground animate-pulse">
+                Initializing Calendar View...
+              </p>
+            </div>
+          }
+        >
           <CalendarView announcements={active} />
         </Suspense>
       )}

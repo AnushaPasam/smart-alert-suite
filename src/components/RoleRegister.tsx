@@ -7,6 +7,20 @@ import { Bell, Eye, EyeOff } from "lucide-react";
 // Roles that should NOT show/store a branch
 const ROLES_WITHOUT_BRANCH: UserRole[] = ["announcer", "principal"];
 
+const roleLabels: Record<UserRole, string> = {
+  principal: "Principal",
+  admin: "Admin (HOD)",
+  announcer: "Announcer",
+  user: "Student",
+};
+
+const rolePaths: Record<UserRole, string> = {
+  principal: "/principal/dashboard",
+  admin: "/admin/dashboard",
+  announcer: "/announcer/dashboard",
+  user: "/user/dashboard",
+};
+
 export default function RoleRegister({ role }: { role: UserRole }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,20 +30,6 @@ export default function RoleRegister({ role }: { role: UserRole }) {
   const [showPw, setShowPw] = useState(false);
   const { register, isAuthenticated, user, isReady } = useAuth();
   const navigate = useNavigate();
-
-  const roleLabels: Record<UserRole, string> = {
-    principal: "Principal",
-    admin: "Admin (HOD)",
-    announcer: "Announcer",
-    user: "Student",
-  };
-
-  const rolePaths: Record<UserRole, string> = {
-    principal: "/principal/dashboard",
-    admin: "/admin/dashboard",
-    announcer: "/announcer/dashboard",
-    user: "/user/dashboard",
-  };
 
   useEffect(() => {
     if (isReady && isAuthenticated && user) {
@@ -44,7 +44,14 @@ export default function RoleRegister({ role }: { role: UserRole }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const effectiveBranch = ROLES_WITHOUT_BRANCH.includes(role) ? "" : branch;
-    register({ name: name || `New ${roleLabels[role]}`, email, password, role, branch: effectiveBranch, rollNumber: role === "user" ? rollNumber : undefined });
+    register({
+      name: name || `New ${roleLabels[role]}`,
+      email,
+      password,
+      role,
+      branch: effectiveBranch,
+      rollNumber: role === "user" ? rollNumber : undefined,
+    });
     navigate(rolePaths[role]);
   };
 
@@ -56,34 +63,70 @@ export default function RoleRegister({ role }: { role: UserRole }) {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
             <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden border border-border bg-white flex items-center justify-center shadow-lg shadow-black/5">
-              <img src="/logo.svg" alt="EduAlert" className="h-full w-full object-contain" />
+              <img
+                src="/logo.svg"
+                alt="EduAlert"
+                className="h-full w-full object-contain"
+              />
             </div>
-            <span className="font-black text-xl tracking-tighter">EduAlert</span>
+            <span className="font-black text-xl tracking-tighter">
+              EduAlert
+            </span>
           </Link>
           <h1 className="text-2xl font-bold mb-1">Registration</h1>
-          <p className="text-sm text-muted-foreground">Create your {roleLabels[role].toLowerCase()} account</p>
+          <p className="text-sm text-muted-foreground">
+            Create your {roleLabels[role].toLowerCase()} account
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="campus-card-static p-6 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="campus-card-static p-6 space-y-5"
+        >
           <div>
-            <label className="block text-sm font-medium mb-1.5">Full Name</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name"
-              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors" />
+            <label className="block text-sm font-medium mb-1.5">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1.5">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@campus.edu"
-              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors" />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@campus.edu"
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1.5">Password</label>
             <div className="relative">
-              <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
-                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors pr-10" />
-              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              <input
+                type={showPw ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(!showPw)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              >
+                {showPw ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>
@@ -91,29 +134,51 @@ export default function RoleRegister({ role }: { role: UserRole }) {
           {!ROLES_WITHOUT_BRANCH.includes(role) && (
             <div>
               <label className="block text-sm font-medium mb-1.5">Branch</label>
-              <select value={branch} onChange={(e) => setBranch(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors">
-                {branches.map((b) => <option key={b} value={b}>{b}</option>)}
+              <select
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
+              >
+                {branches.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
               </select>
             </div>
           )}
 
           {role === "user" && (
             <div>
-              <label className="block text-sm font-medium mb-1.5">Roll Number</label>
-              <input type="text" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} placeholder="Enter your roll number" required
-                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors" />
+              <label className="block text-sm font-medium mb-1.5">
+                Roll Number
+              </label>
+              <input
+                type="text"
+                value={rollNumber}
+                onChange={(e) => setRollNumber(e.target.value)}
+                placeholder="Enter your roll number"
+                required
+                className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
+              />
             </div>
           )}
 
-          <button type="submit"
-            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5">
+          <button
+            type="submit"
+            className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+          >
             Register
           </button>
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link to={loginPath} className="text-primary font-medium hover:underline">Sign In</Link>
+            <Link
+              to={loginPath}
+              className="text-primary font-medium hover:underline"
+            >
+              Sign In
+            </Link>
           </p>
         </form>
       </div>

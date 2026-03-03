@@ -7,7 +7,9 @@ export default function StudentProfile() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => { document.title = "Profile – Smart Campus"; }, []);
+  useEffect(() => {
+    document.title = "Profile – Smart Campus";
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -26,9 +28,21 @@ export default function StudentProfile() {
 
         <div className="space-y-4 pt-4 border-t border-border">
           {[
-            { icon: User, label: "Full Name", value: user?.name || "Rahul Mehta" },
-            { icon: Mail, label: "Email", value: user?.email || "student@campus.edu" },
-            { icon: Building, label: "College", value: user?.college || "NIT Delhi" },
+            {
+              icon: User,
+              label: "Full Name",
+              value: user?.name || "Rahul Mehta",
+            },
+            {
+              icon: Mail,
+              label: "Email",
+              value: user?.email || "student@campus.edu",
+            },
+            {
+              icon: Building,
+              label: "College",
+              value: user?.college || "NIT Delhi",
+            },
           ].map((item) => (
             <div key={item.label} className="flex items-center gap-3">
               <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -45,7 +59,10 @@ export default function StudentProfile() {
             <Lock className="h-4 w-4 text-muted-foreground" /> Change Password
           </button>
           <button
-            onClick={() => { logout(); navigate("/"); }}
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
           >
             <LogOut className="h-4 w-4" /> Logout

@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Bell, Bookmark, Home, User, LogOut, Menu, X, Search } from "lucide-react";
+import {
+  Bell,
+  Bookmark,
+  Home,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Search,
+} from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", path: "/student", icon: Home },
@@ -9,7 +18,11 @@ const navItems = [
   { label: "Profile", path: "/student/profile", icon: User },
 ];
 
-export default function StudentLayout({ children }: { children: React.ReactNode }) {
+export default function StudentLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,7 +42,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <Bell className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-sm hidden sm:block">Smart Campus</span>
+            <span className="font-semibold text-sm hidden sm:block">
+              Smart Campus
+            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -54,7 +69,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           </nav>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:block">{user?.name}</span>
+            <span className="text-sm text-muted-foreground hidden sm:block">
+              {user?.name}
+            </span>
             <button
               onClick={handleLogout}
               className="hidden md:flex items-center gap-1 text-sm text-muted-foreground hover:text-destructive transition-colors"
@@ -66,7 +83,11 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               className="md:hidden text-muted-foreground"
               aria-label="Toggle menu"
             >
-              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {menuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>

@@ -1,32 +1,69 @@
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { User as UserIcon, Mail, Building, Lock, LogOut, Bell, BellOff, Edit2, Check, X, QrCode, MapPin, Award, CreditCard, Download, ShieldCheck } from "lucide-react";
+import {
+  User as UserIcon,
+  Mail,
+  Building,
+  Lock,
+  LogOut,
+  Bell,
+  BellOff,
+  Edit2,
+  Check,
+  X,
+  QrCode,
+  MapPin,
+  Award,
+  CreditCard,
+  Download,
+  ShieldCheck,
+} from "lucide-react";
 // Lazy load dialogs
-const ChangePasswordDialog = lazy(() => import("@/components/ChangePasswordDialog"));
+const ChangePasswordDialog = lazy(
+  () => import("@/components/ChangePasswordDialog"),
+);
 import { toast } from "sonner";
 
 export default function UserProfile() {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState({ name: "", branch: "", rollNumber: "" });
+  const [editedData, setEditedData] = useState({
+    name: "",
+    branch: "",
+    rollNumber: "",
+  });
 
   useEffect(() => {
     document.title = "Profile – Smart Campus";
-    if (user) setEditedData({ name: user.name, branch: user.branch, rollNumber: user.rollNumber || "" });
+    if (user)
+      setEditedData({
+        name: user.name,
+        branch: user.branch,
+        rollNumber: user.rollNumber || "",
+      });
   }, [user]);
 
   // Generate a mock Student ID from email
   const studentId = useMemo(() => {
     if (!user?.email) return "SC-2024-001";
-    const hash = user.email.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return `SC-${2024 + (hash % 5)}-${(1000 + (hash % 9000))}`;
+    const hash = user.email
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return `SC-${2024 + (hash % 5)}-${1000 + (hash % 9000)}`;
   }, [user?.email]);
 
   const [prefs, setPrefs] = useState(() => {
     const stored = localStorage.getItem("notificationPreferences");
-    return stored ? JSON.parse(stored) : { newAnnouncements: true, urgent: true, department: true, weeklySummary: true };
+    return stored
+      ? JSON.parse(stored)
+      : {
+          newAnnouncements: true,
+          urgent: true,
+          department: true,
+          weeklySummary: true,
+        };
   });
 
   const togglePref = (key: string) => {
@@ -46,20 +83,37 @@ export default function UserProfile() {
   };
 
   const cancelEdit = () => {
-    if (user) setEditedData({ name: user.name, branch: user.branch, rollNumber: user.rollNumber || "" });
+    if (user)
+      setEditedData({
+        name: user.name,
+        branch: user.branch,
+        rollNumber: user.rollNumber || "",
+      });
     setIsEditing(false);
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground uppercase">Digital identity</h1>
+        <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground uppercase">
+          Digital identity
+        </h1>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
             onClick={() => {
-              const idData = { name: user?.name, id: studentId, branch: user?.branch, timestamp: new Date().toISOString() };
-              localStorage.setItem(`campus_id_${user?.email}`, JSON.stringify(idData));
-              toast.success("Identity Token successfully stored in your Campus Wallet!");
+              const idData = {
+                name: user?.name,
+                id: studentId,
+                branch: user?.branch,
+                timestamp: new Date().toISOString(),
+              };
+              localStorage.setItem(
+                `campus_id_${user?.email}`,
+                JSON.stringify(idData),
+              );
+              toast.success(
+                "Identity Token successfully stored in your Campus Wallet!",
+              );
             }}
             className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center gap-2 bg-card border border-border rounded-xl text-xs font-bold hover:bg-muted transition-all active:scale-95 shadow-sm"
           >
@@ -74,10 +128,16 @@ export default function UserProfile() {
             </button>
           ) : (
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button onClick={handleSave} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center gap-2 bg-emerald-500 text-white rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-emerald-500/20 transition-all active:scale-95 shadow-md">
+              <button
+                onClick={handleSave}
+                className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center gap-2 bg-emerald-500 text-white rounded-xl text-xs font-bold hover:shadow-lg hover:shadow-emerald-500/20 transition-all active:scale-95 shadow-md"
+              >
                 <Check className="h-4 w-4" /> Save
               </button>
-              <button onClick={cancelEdit} className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center gap-2 bg-muted text-muted-foreground rounded-xl text-xs font-bold hover:bg-muted/80 transition-all active:scale-95">
+              <button
+                onClick={cancelEdit}
+                className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center gap-2 bg-muted text-muted-foreground rounded-xl text-xs font-bold hover:bg-muted/80 transition-all active:scale-95"
+              >
                 <X className="h-4 w-4" /> Cancel
               </button>
             </div>
@@ -99,12 +159,19 @@ export default function UserProfile() {
                     <ShieldCheck className="h-6 w-6" strokeWidth={2.5} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black uppercase tracking-[0.2em] leading-none">Smart Campus</h3>
-                    <p className="text-[10px] font-bold text-primary mt-1 uppercase tracking-widest">Verified Student ID</p>
+                    <h3 className="text-sm font-black uppercase tracking-[0.2em] leading-none">
+                      Smart Campus
+                    </h3>
+                    <p className="text-[10px] font-bold text-primary mt-1 uppercase tracking-widest">
+                      Verified Student ID
+                    </p>
                   </div>
                 </div>
                 <div className="h-8 w-12 rounded-lg bg-muted/50 border border-border flex items-center justify-center opacity-50">
-                  <div className="w-6 h-4 border border-muted-foreground/30 rounded-sm bg-muted-foreground/10" title="Security Chip" />
+                  <div
+                    className="w-6 h-4 border border-muted-foreground/30 rounded-sm bg-muted-foreground/10"
+                    title="Security Chip"
+                  />
                 </div>
               </div>
 
@@ -127,7 +194,12 @@ export default function UserProfile() {
                         <input
                           type="text"
                           value={editedData.name}
-                          onChange={(e) => setEditedData(prev => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
                           className="bg-muted/50 border border-primary/20 rounded-xl px-3 py-1 w-full max-w-sm focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-black"
                         />
                       ) : (
@@ -135,11 +207,17 @@ export default function UserProfile() {
                       )}
                     </h2>
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground mt-2 flex items-center justify-center sm:justify-start gap-2">
-                      <CreditCard className="h-3.5 w-3.5 text-primary" /> {isEditing ? (
+                      <CreditCard className="h-3.5 w-3.5 text-primary" />{" "}
+                      {isEditing ? (
                         <input
                           type="text"
                           value={editedData.rollNumber}
-                          onChange={(e) => setEditedData(prev => ({ ...prev, rollNumber: e.target.value }))}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev,
+                              rollNumber: e.target.value,
+                            }))
+                          }
                           className="bg-muted/50 border border-primary/20 rounded-lg px-2 py-0.5 w-32 focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all font-bold"
                           placeholder="Roll No"
                         />
@@ -156,7 +234,12 @@ export default function UserProfile() {
                         <input
                           type="text"
                           value={editedData.branch}
-                          onChange={(e) => setEditedData(prev => ({ ...prev, branch: e.target.value }))}
+                          onChange={(e) =>
+                            setEditedData((prev) => ({
+                              ...prev,
+                              branch: e.target.value,
+                            }))
+                          }
                           className="bg-transparent border-none p-0 w-24 focus:outline-none"
                         />
                       ) : (
@@ -194,9 +277,12 @@ export default function UserProfile() {
                 <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1.5 flex items-center justify-center gap-2">
                   <QrCode className="h-3 w-3" /> Event Scan-In
                 </p>
-                <p className="text-xs font-bold text-foreground">Verified QR Identity Token</p>
+                <p className="text-xs font-bold text-foreground">
+                  Verified QR Identity Token
+                </p>
                 <p className="text-xs text-muted-foreground mt-4 font-medium leading-relaxed">
-                  Present this QR code for library entry, event attendance, and official campus services.
+                  Present this QR code for library entry, event attendance, and
+                  official campus services.
                 </p>
               </div>
             </div>
@@ -212,15 +298,20 @@ export default function UserProfile() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-black text-lg uppercase tracking-tight">Security & Auth</h2>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Managed by Campus Auth</p>
+              <h2 className="font-black text-lg uppercase tracking-tight">
+                Security & Auth
+              </h2>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                Managed by Campus Auth
+              </p>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="space-y-2 group">
               <label className="text-[10px] font-black uppercase text-muted-foreground flex items-center gap-2 px-1 tracking-widest">
-                <Mail className="h-3 w-3 text-primary" /> Active Institutional Email
+                <Mail className="h-3 w-3 text-primary" /> Active Institutional
+                Email
               </label>
               <div className="px-4 py-3 bg-muted/30 border border-border rounded-2xl text-sm font-bold text-foreground transition-all group-hover:border-primary/30">
                 {user?.email || "student@campus.edu"}
@@ -229,16 +320,23 @@ export default function UserProfile() {
           </div>
 
           <div className="flex flex-col gap-3 pt-6 border-t border-border/50">
-            <Suspense fallback={<div className="h-10 w-full bg-muted animate-pulse rounded-lg" />}>
+            <Suspense
+              fallback={
+                <div className="h-10 w-full bg-muted animate-pulse rounded-lg" />
+              }
+            >
               <ChangePasswordDialog />
             </Suspense>
-            <button onClick={() => {
-              const role = user?.role || "user";
-              logout();
-              navigate(`/${role}/login`);
-            }}
-              className="group flex items-center justify-center gap-3 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-destructive bg-destructive/5 hover:bg-destructive/10 border border-destructive/10 transition-all active:scale-95">
-              <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Sign Out of Campus Session
+            <button
+              onClick={() => {
+                const role = user?.role || "user";
+                logout();
+                navigate(`/${role}/login`);
+              }}
+              className="group flex items-center justify-center gap-3 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-destructive bg-destructive/5 hover:bg-destructive/10 border border-destructive/10 transition-all active:scale-95"
+            >
+              <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />{" "}
+              Sign Out of Campus Session
             </button>
           </div>
         </div>
@@ -250,27 +348,57 @@ export default function UserProfile() {
               <Bell className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="font-black text-lg uppercase tracking-tight">Focus Settings</h2>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Control Information Flow</p>
+              <h2 className="font-black text-lg uppercase tracking-tight">
+                Focus Settings
+              </h2>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                Control Information Flow
+              </p>
             </div>
           </div>
 
           <div className="space-y-3">
             {[
-              { key: "newAnnouncements", label: "General Announcements", desc: "Campus-wide updates" },
-              { key: "urgent", label: "Urgent Alerts", desc: "High-priority safety & deadlines" },
-              { key: "department", label: "Branch Updates", desc: "Exclusive to your department" },
-              { key: "weeklySummary", label: "Weekly Digest", desc: "Summary of missed notices" },
+              {
+                key: "newAnnouncements",
+                label: "General Announcements",
+                desc: "Campus-wide updates",
+              },
+              {
+                key: "urgent",
+                label: "Urgent Alerts",
+                desc: "High-priority safety & deadlines",
+              },
+              {
+                key: "department",
+                label: "Branch Updates",
+                desc: "Exclusive to your department",
+              },
+              {
+                key: "weeklySummary",
+                label: "Weekly Digest",
+                desc: "Summary of missed notices",
+              },
             ].map((item) => (
-              <div key={item.key}
+              <div
+                key={item.key}
                 onClick={() => togglePref(item.key)}
-                className="group flex items-center justify-between gap-4 p-4 rounded-2xl border border-transparent hover:border-border hover:bg-muted/20 transition-all cursor-pointer">
+                className="group flex items-center justify-between gap-4 p-4 rounded-2xl border border-transparent hover:border-border hover:bg-muted/20 transition-all cursor-pointer"
+              >
                 <div>
-                  <p className="text-xs font-bold text-foreground transition-colors group-hover:text-primary">{item.label}</p>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-1">{item.desc}</p>
+                  <p className="text-xs font-bold text-foreground transition-colors group-hover:text-primary">
+                    {item.label}
+                  </p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter mt-1">
+                    {item.desc}
+                  </p>
                 </div>
-                <div className={`relative h-6 w-11 rounded-full transition-all shrink-0 ${prefs[item.key] ? "bg-primary shadow-lg shadow-primary/20" : "bg-muted border border-border"}`}>
-                  <div className={`absolute top-1 h-4 w-4 rounded-full bg-card shadow-sm transition-transform ${prefs[item.key] ? "translate-x-6" : "translate-x-1"}`} />
+                <div
+                  className={`relative h-6 w-11 rounded-full transition-all shrink-0 ${prefs[item.key] ? "bg-primary shadow-lg shadow-primary/20" : "bg-muted border border-border"}`}
+                >
+                  <div
+                    className={`absolute top-1 h-4 w-4 rounded-full bg-card shadow-sm transition-transform ${prefs[item.key] ? "translate-x-6" : "translate-x-1"}`}
+                  />
                 </div>
               </div>
             ))}
