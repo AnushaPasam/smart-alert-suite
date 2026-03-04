@@ -37,10 +37,11 @@ const AnnouncementCard = memo(
     return (
       <article
         onClick={() => navigate(`${basePath}/announcement/${a.id}`)}
-        className={`campus-card group ${compact ? "p-3 gap-2" : "p-5 gap-3"} flex flex-col relative cursor-pointer hover:shadow-md transition-all duration-200 ${!a.isRead
+        className={`campus-card group ${compact ? "p-3 gap-2" : "p-5 gap-3"} flex flex-col relative cursor-pointer hover:shadow-md transition-all duration-200 ${
+          !a.isRead
             ? "border-l-[3px] border-l-primary shadow-sm shadow-primary/5"
             : ""
-          } ${a.priority === "high" && !compact ? "priority-pulse-high" : ""}`}
+        } ${a.priority === "high" && !compact ? "priority-pulse-high" : ""}`}
       >
         {/* Top badges */}
         <div className="flex items-center gap-2 flex-wrap">

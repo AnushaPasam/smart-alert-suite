@@ -1,12 +1,37 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Bell, ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
 import Logo from "@/components/Logo";
+import { toast } from "sonner";
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     document.title = "Contact Us | EduAlert Support";
   }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.message) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      toast.success("Message sent successfully! We will get back to you soon.");
+      setFormData({ name: "", email: "", message: "" });
+      setIsSubmitting(false);
+    }, 1000);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,21 +78,33 @@ export default function Contact() {
             ))}
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium mb-1.5">Name</label>
               <input
                 type="text"
+                required
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Your name"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
+                disabled={isSubmitting}
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5">Email</label>
               <input
                 type="email"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 placeholder="you@example.com"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
+                disabled={isSubmitting}
               />
             </div>
             <div>
@@ -76,15 +113,22 @@ export default function Contact() {
               </label>
               <textarea
                 rows={4}
+                required
+                value={formData.message}
+                onChange={(e) =>
+                  setFormData({ ...formData, message: e.target.value })
+                }
                 placeholder="How can we help?"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors resize-none"
+                disabled={isSubmitting}
               />
             </div>
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+              disabled={isSubmitting}
+              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-campus-blue-hover transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send Message
+              {isSubmitting ? "Sending..." : "Send Message"}
             </button>
           </form>
         </article>
