@@ -37,11 +37,10 @@ const AnnouncementCard = memo(
     return (
       <article
         onClick={() => navigate(`${basePath}/announcement/${a.id}`)}
-        className={`campus-card group ${compact ? "p-3 gap-2" : "p-5 gap-3"} flex flex-col relative cursor-pointer hover:shadow-md transition-all duration-200 ${
-          !a.isRead
+        className={`campus-card group ${compact ? "p-3 gap-2" : "p-5 gap-3"} flex flex-col relative cursor-pointer hover:shadow-md transition-all duration-200 ${!a.isRead
             ? "border-l-[3px] border-l-primary shadow-sm shadow-primary/5"
             : ""
-        } ${a.priority === "high" && !compact ? "priority-pulse-high" : ""}`}
+          } ${a.priority === "high" && !compact ? "priority-pulse-high" : ""}`}
       >
         {/* Top badges */}
         <div className="flex items-center gap-2 flex-wrap">
@@ -100,16 +99,11 @@ const AnnouncementCard = memo(
             {compact && <span>{a.category}</span>}
           </div>
           <div className="flex items-center gap-2.5">
-            <div
-              className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/40 hover:bg-primary/5 hover:text-primary transition-colors cursor-default"
-              title={`${a.views} views`}
-            >
-              <Eye className="h-3 w-3" />
-              <span className="tabular-nums">{a.views}</span>
-              <span className="hidden sm:inline lowercase opacity-60">
-                views
+            {!compact && (
+              <span className="inline-flex items-center gap-1">
+                <Eye className="h-3 w-3" /> {a.views}
               </span>
-            </div>
+            )}
             {!compact && (
               <button
                 onClick={(e) => {

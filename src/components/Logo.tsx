@@ -8,18 +8,9 @@ interface LogoProps {
   onClick?: () => void;
 }
 
-const getHomePath = () => {
-  const panel = import.meta.env.VITE_APP_PANEL;
-  if (panel === "admin") return "/admin/dashboard";
-  if (panel === "user") return "/user/dashboard";
-  if (panel === "announcer") return "/announcer/dashboard";
-  if (panel === "principal") return "/principal/dashboard";
-  return "/";
-};
-
 const Logo = ({
   className = "",
-  to = getHomePath(),
+  to = "/",
   showText = true,
   onClick,
 }: LogoProps) => {
