@@ -100,11 +100,16 @@ const AnnouncementCard = memo(
             {compact && <span>{a.category}</span>}
           </div>
           <div className="flex items-center gap-2.5">
-            {!compact && (
-              <span className="inline-flex items-center gap-1">
-                <Eye className="h-3 w-3" /> {a.views}
+            <div
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/40 hover:bg-primary/5 hover:text-primary transition-colors cursor-default"
+              title={`${a.views} views`}
+            >
+              <Eye className="h-3 w-3" />
+              <span className="tabular-nums">{a.views}</span>
+              <span className="hidden sm:inline lowercase opacity-60">
+                views
               </span>
-            )}
+            </div>
             {!compact && (
               <button
                 onClick={(e) => {

@@ -538,17 +538,8 @@ export default function Index() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="grid sm:grid-cols-3 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="h-8 w-8 rounded-lg overflow-hidden border border-border bg-white flex items-center justify-center">
-                  <img
-                    src="/logo.svg"
-                    alt="EduAlert"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-                <span className="font-bold text-lg tracking-tighter">
-                  EduAlert
-                </span>
+              <div className="mb-3">
+                <Logo to="/" showText={true} />
               </div>
               <p className="text-sm text-muted-foreground">
                 Modern announcement management for educational institutions.

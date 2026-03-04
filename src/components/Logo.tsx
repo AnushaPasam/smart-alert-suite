@@ -1,5 +1,5 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 interface LogoProps {
   className?: string;
@@ -8,33 +8,44 @@ interface LogoProps {
   onClick?: () => void;
 }
 
-export default function Logo({
-  className,
-  to = "/",
+const getHomePath = () => {
+  const panel = import.meta.env.VITE_APP_PANEL;
+  if (panel === "admin") return "/admin/dashboard";
+  if (panel === "user") return "/user/dashboard";
+  if (panel === "announcer") return "/announcer/dashboard";
+  if (panel === "principal") return "/principal/dashboard";
+  return "/";
+};
+
+const Logo = ({
+  className = "",
+  to = getHomePath(),
   showText = true,
   onClick,
-}: LogoProps) {
+}: LogoProps) => {
   return (
     <Link
       to={to}
       onClick={onClick}
-      className={cn(
-        "flex items-center gap-3 group transition-all duration-200 active:scale-95 shrink-0",
-        className,
-      )}
+      className={`flex items-center gap-2.5 group transition-all duration-300 ${className}`}
     >
-      <div className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center transition-all duration-300 overflow-hidden">
-        <img
-          src="/logo.svg"
-          alt="EduAlert Logo"
-          className="h-full w-full object-contain"
-        />
+      <div className="relative">
+        <div className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center group-hover:scale-110 transition-all duration-300">
+          <img
+            src="/logo.svg"
+            alt="EduAlert"
+            className="h-full w-full object-contain"
+          />
+        </div>
       </div>
+
       {showText && (
-        <span className="font-black text-xl sm:text-2xl tracking-tighter text-foreground group-hover:text-primary transition-colors">
-          Edu<span className="text-primary font-bold">Alert</span>
+        <span className="text-xl sm:text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80 leading-none">
+          Edu<span className="text-primary">Alert</span>
         </span>
       )}
     </Link>
   );
-}
+};
+
+export default Logo;

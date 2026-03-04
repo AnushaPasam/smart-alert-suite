@@ -50,11 +50,14 @@ export default function AnnouncementDetail({
   const selectedVoiceURIRef = useRef(selectedVoiceURI);
   selectedVoiceURIRef.current = selectedVoiceURI;
 
+  const hasIncrementedRef = useRef(false);
+
   useEffect(() => {
-    if (a) {
+    if (a && !hasIncrementedRef.current) {
       document.title = `${a.title} – EduAlert`;
       markAsRead(a.id);
       incrementViews(a.id);
+      hasIncrementedRef.current = true;
     }
   }, [a, markAsRead, incrementViews]);
 
@@ -486,17 +489,22 @@ export default function AnnouncementDetail({
             {renderTextWithHighlight(a.title, 0, isSpeaking)}
           </h1>
 
-          <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap tabular-nums font-bold uppercase tracking-wider">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-md border border-border/50">
-              <Calendar className="h-3.5 w-3.5 text-primary" /> {a.createdAt}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-md border border-border/50">
-              <Clock className="h-3.5 w-3.5 text-primary" /> Expires:{" "}
-              {a.expiryDate}
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-md border border-border/50">
-              <Eye className="h-3.5 w-3.5 text-primary" /> {a.views} Views
-            </span>
+          <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground flex-wrap font-bold uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/60 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm transition-all hover:border-primary/20">
+              <Calendar className="h-4 w-4 text-primary" />
+              <span>{a.createdAt}</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-muted/60 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm transition-all hover:border-primary/20">
+              <Clock className="h-4 w-4 text-primary" />
+              <span>Expires: {a.expiryDate}</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary rounded-xl border border-primary/20 shadow-[0_0_15px_rgba(59,130,246,0.05)] transition-all animate-in fade-in zoom-in-95">
+              <Eye className="h-4 w-4" />
+              <span className="tabular-nums">{a.views}</span>
+              <span className="opacity-70 text-[8px] sm:text-[10px] ml-0.5">
+                Views
+              </span>
+            </div>
           </div>
 
           <div className="border-t border-border/50 pt-8 mt-4">

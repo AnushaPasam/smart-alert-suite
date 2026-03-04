@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, type UserRole } from "@/contexts/AuthContext";
 import { Bell, Eye, EyeOff } from "lucide-react";
+import Logo from "./Logo";
 import { ForgotPasswordDialog } from "./ForgotPasswordDialog";
 
 const roleLabels: Record<UserRole, string> = {
@@ -45,18 +46,9 @@ export default function RoleLogin({ defaultRole }: { defaultRole: UserRole }) {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
-            <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden border border-border bg-white flex items-center justify-center shadow-lg shadow-black/5">
-              <img
-                src="/logo.svg"
-                alt="EduAlert"
-                className="h-full w-full object-contain"
-              />
-            </div>
-            <span className="font-black text-xl tracking-tighter">
-              EduAlert
-            </span>
-          </Link>
+          <div className="flex justify-center mb-6">
+            <Logo to="/" showText={true} />
+          </div>
           <h1 className="text-2xl font-bold mb-1">Sign In</h1>
           <p className="text-sm text-muted-foreground">
             Sign in to your {roleLabels[defaultRole].toLowerCase()} account

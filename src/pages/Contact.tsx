@@ -1,12 +1,35 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Bell, ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
+import { toast } from "sonner";
 import Logo from "@/components/Logo";
 
 export default function Contact() {
   useEffect(() => {
     document.title = "Contact Us | EduAlert Support";
   }, []);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+
+    if (!name) {
+      toast.error("Please enter your name");
+      return;
+    }
+
+    toast.success(
+      `Thank you, ${name}! Your message has been sent to the EduAlert support team.`,
+      {
+        description: "We will get back to you within 24-48 hours.",
+        duration: 5000,
+      },
+    );
+
+    // Reset form
+    e.currentTarget.reset();
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,11 +76,13 @@ export default function Contact() {
             ))}
           </div>
 
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium mb-1.5">Name</label>
               <input
                 type="text"
+                name="name"
+                required
                 placeholder="Your name"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
               />
@@ -66,6 +91,8 @@ export default function Contact() {
               <label className="block text-sm font-medium mb-1.5">Email</label>
               <input
                 type="email"
+                name="email"
+                required
                 placeholder="you@example.com"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors"
               />
@@ -75,6 +102,8 @@ export default function Contact() {
                 Message
               </label>
               <textarea
+                name="message"
+                required
                 rows={4}
                 placeholder="How can we help?"
                 className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary transition-colors resize-none"
