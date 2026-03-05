@@ -46,10 +46,22 @@ export default function AnnouncementDetail({
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const chromeTTSKeepAliveRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
   const selectedVoiceURIRef = useRef(selectedVoiceURI);
   selectedVoiceURIRef.current = selectedVoiceURI;
+  const isSpeakingRef = useRef(isSpeaking);
+  isSpeakingRef.current = isSpeaking;
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+  const currentCharIndexRef = useRef(currentCharIndex);
+  currentCharIndexRef.current = currentCharIndex;
+  const voicesRef = useRef(voices);
+  voicesRef.current = voices;
   const hasInitializedRef = useRef<string | null>(null);
+  const prevPlaybackRateRef = useRef(playbackRate);
 
   useEffect(() => {
     if (a && hasInitializedRef.current !== a.id) {
@@ -84,6 +96,10 @@ export default function AnnouncementDetail({
 
     return () => {
       window.speechSynthesis.cancel();
+      if (chromeTTSKeepAliveRef.current) {
+        clearInterval(chromeTTSKeepAliveRef.current);
+        chromeTTSKeepAliveRef.current = null;
+      }
     };
   }, []);
 
@@ -113,10 +129,15 @@ export default function AnnouncementDetail({
 
   const stopTTS = () => {
     window.speechSynthesis.cancel();
+    if (chromeTTSKeepAliveRef.current) {
+      clearInterval(chromeTTSKeepAliveRef.current);
+      chromeTTSKeepAliveRef.current = null;
+    }
     if (utteranceRef.current) {
       utteranceRef.current.onend = null;
       utteranceRef.current.onerror = null;
       utteranceRef.current.onboundary = null;
+      utteranceRef.current.onstart = null;
     }
     utteranceRef.current = null;
     setIsSpeaking(false);
@@ -124,55 +145,78 @@ export default function AnnouncementDetail({
     setCurrentCharIndex(0);
   };
 
-  // Effect to handle playback rate changes live
+  // Effect to handle playback rate changes live.
+  // ONLY responds to playbackRate — reads other values from refs.
   useEffect(() => {
-    if (isSpeaking && utteranceRef.current) {
-      // Browsers are inconsistent with live rate changes.
-      // The most reliable way is to restart from last known boundary.
-      const wasPaused = isPaused;
-      const currentIndex = currentCharIndex;
+    // Skip the initial render / no actual rate change
+    if (prevPlaybackRateRef.current === playbackRate) return;
+    prevPlaybackRateRef.current = playbackRate;
 
-      window.speechSynthesis.cancel();
+    if (!isSpeakingRef.current || !utteranceRef.current) return;
 
-      const fullText = `${a?.title}. ${a?.description}`;
-      const remainingText = fullText.substring(currentIndex);
-      // Small delay to ensure synthesis engine is ready after cancel
-      setTimeout(() => {
-        const utterance = new SpeechSynthesisUtterance(remainingText);
-        utteranceRef.current = utterance;
-        utterance.rate = playbackRate;
+    const wasPaused = isPausedRef.current;
+    const currentIndex = currentCharIndexRef.current;
 
-        if (selectedVoiceURI) {
-          const voice = voices.find((v) => v.voiceURI === selectedVoiceURI);
-          if (voice) utterance.voice = voice;
-        }
-
-        utterance.onboundary = (event) => {
-          if (event.name === "word") {
-            setCurrentCharIndex(currentIndex + event.charIndex);
-          }
-        };
-
-        utterance.onend = () => {
-          setIsSpeaking(false);
-          setIsPaused(false);
-          setCurrentCharIndex(0);
-        };
-
-        window.speechSynthesis.speak(utterance);
-        if (wasPaused) window.speechSynthesis.pause();
-      }, 50);
+    window.speechSynthesis.cancel();
+    if (chromeTTSKeepAliveRef.current) {
+      clearInterval(chromeTTSKeepAliveRef.current);
+      chromeTTSKeepAliveRef.current = null;
     }
-  }, [
-    playbackRate,
-    a?.title,
-    a?.description,
-    selectedVoiceURI,
-    voices,
-    isSpeaking,
-    isPaused,
-    currentCharIndex,
-  ]);
+
+    const fullText = `${a?.title}. ${a?.description}`;
+    const remainingText = fullText.substring(currentIndex);
+
+    setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(remainingText);
+      utteranceRef.current = utterance;
+      // @ts-expect-error Chrome GC workaround
+      window.currentUtterance = utterance;
+      utterance.rate = playbackRate;
+
+      const voiceURI = selectedVoiceURIRef.current;
+      if (voiceURI) {
+        const voice = voicesRef.current.find((v) => v.voiceURI === voiceURI);
+        if (voice) utterance.voice = voice;
+      }
+
+      utterance.onboundary = (event) => {
+        if (event.name === "word") {
+          setCurrentCharIndex(currentIndex + event.charIndex);
+        }
+      };
+
+      utterance.onend = () => {
+        if (chromeTTSKeepAliveRef.current) {
+          clearInterval(chromeTTSKeepAliveRef.current);
+          chromeTTSKeepAliveRef.current = null;
+        }
+        setIsSpeaking(false);
+        setIsPaused(false);
+        setCurrentCharIndex(0);
+      };
+
+      utterance.onerror = () => {
+        if (chromeTTSKeepAliveRef.current) {
+          clearInterval(chromeTTSKeepAliveRef.current);
+          chromeTTSKeepAliveRef.current = null;
+        }
+        setIsSpeaking(false);
+        setIsPaused(false);
+        setCurrentCharIndex(0);
+      };
+
+      window.speechSynthesis.speak(utterance);
+      // Chrome keepalive: pause+resume every 10s to prevent Chrome from killing long utterances
+      chromeTTSKeepAliveRef.current = setInterval(() => {
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }, 10000);
+      if (wasPaused) window.speechSynthesis.pause();
+    }, 50);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playbackRate]);
 
   const handleTTS = () => {
     if (!a) return;
@@ -191,6 +235,11 @@ export default function AnnouncementDetail({
 
     // Start New Speech
     window.speechSynthesis.cancel();
+    if (chromeTTSKeepAliveRef.current) {
+      clearInterval(chromeTTSKeepAliveRef.current);
+      chromeTTSKeepAliveRef.current = null;
+    }
+
     const fullText = `${a.title}. ${a.description}`;
     const utterance = new SpeechSynthesisUtterance(fullText);
     utteranceRef.current = utterance;
@@ -216,6 +265,10 @@ export default function AnnouncementDetail({
     };
 
     utterance.onend = () => {
+      if (chromeTTSKeepAliveRef.current) {
+        clearInterval(chromeTTSKeepAliveRef.current);
+        chromeTTSKeepAliveRef.current = null;
+      }
       setIsSpeaking(false);
       setIsPaused(false);
       setCurrentCharIndex(0);
@@ -223,6 +276,10 @@ export default function AnnouncementDetail({
 
     utterance.onerror = (event) => {
       console.error("SpeechSynthesis error:", event);
+      if (chromeTTSKeepAliveRef.current) {
+        clearInterval(chromeTTSKeepAliveRef.current);
+        chromeTTSKeepAliveRef.current = null;
+      }
       setIsSpeaking(false);
       setIsPaused(false);
       setCurrentCharIndex(0);
@@ -230,7 +287,16 @@ export default function AnnouncementDetail({
     };
 
     window.speechSynthesis.speak(utterance);
-    // Set initial state immediately to show start of Title
+
+    // Chrome keepalive: pause+resume every 10s to prevent Chrome from killing long utterances
+    chromeTTSKeepAliveRef.current = setInterval(() => {
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }, 10000);
+
+    // Set initial state immediately to show visual feedback
     setIsSpeaking(true);
     setIsPaused(false);
     setCurrentCharIndex(0);
