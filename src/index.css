@@ -73,36 +73,6 @@
       0 10px 25px -5px hsl(220 20% 15% / 0.08),
       0 4px 6px -4px hsl(220 20% 15% / 0.04);
   }
-
-  .dark {
-    --background: 220 20% 8%;
-    --foreground: 38 30% 95%;
-    --card: 220 20% 12%;
-    --card-foreground: 38 30% 95%;
-    --popover: 220 20% 12%;
-    --popover-foreground: 38 30% 95%;
-    --primary: 216 50% 60%;
-    --primary-foreground: 220 20% 8%;
-    --secondary: 220 14% 18%;
-    --secondary-foreground: 38 30% 95%;
-    --muted: 220 14% 18%;
-    --muted-foreground: 220 9% 65%;
-    --accent: 81 25% 55%;
-    --accent-foreground: 220 20% 8%;
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 38 30% 95%;
-    --border: 220 14% 22%;
-    --input: 220 14% 22%;
-    --ring: 216 50% 60%;
-    --sidebar-background: 220 20% 10%;
-    --sidebar-foreground: 38 30% 95%;
-    --sidebar-primary: 216 50% 60%;
-    --sidebar-primary-foreground: 220 20% 8%;
-    --sidebar-accent: 220 14% 18%;
-    --sidebar-accent-foreground: 38 30% 95%;
-    --sidebar-border: 220 14% 22%;
-    --sidebar-ring: 216 50% 60%;
-  }
 }
 
 @layer base {
@@ -160,12 +130,15 @@
   .fade-in-up-delay-1 {
     animation-delay: 0.05s;
   }
+
   .fade-in-up-delay-2 {
     animation-delay: 0.1s;
   }
+
   .fade-in-up-delay-3 {
     animation-delay: 0.15s;
   }
+
   .fade-in-up-delay-4 {
     animation-delay: 0.2s;
   }
@@ -227,6 +200,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -238,6 +212,7 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -249,6 +224,7 @@
   100% {
     box-shadow: 0 0 8px -2px hsl(var(--priority-high) / 0.3);
   }
+
   50% {
     box-shadow: 0 0 12px -2px hsl(var(--priority-high) / 0.5);
   }
@@ -258,6 +234,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }

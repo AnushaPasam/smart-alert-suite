@@ -4,6 +4,7 @@ import React, {
   useContext,
   useState,
   useCallback,
+  useMemo,
   useEffect,
   type ReactNode,
 } from "react";
@@ -103,9 +104,13 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const markAsRead = useCallback((id: string) => {
-    setAnnouncements((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, isRead: true } : a)),
-    );
+    setAnnouncements((prev) => {
+      const a = prev.find((item) => item.id === id);
+      if (a && a.isRead) return prev;
+      return prev.map((item) =>
+        item.id === id ? { ...item, isRead: true } : item,
+      );
+    });
   }, []);
 
   const markAllAsRead = useCallback(() => {
@@ -114,7 +119,9 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
 
   const incrementViews = useCallback((id: string) => {
     setAnnouncements((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, views: a.views + 1 } : a)),
+      prev.map((item) =>
+        item.id === id ? { ...item, views: item.views + 1 } : item,
+      ),
     );
   }, []);
 
@@ -190,24 +197,41 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
     setCategories((prev) => prev.filter((c) => c !== name));
   }, []);
 
+  const value = useMemo(
+    () => ({
+      announcements,
+      toggleBookmark,
+      markAsRead,
+      markAllAsRead,
+      incrementViews,
+      addAnnouncement,
+      deleteAnnouncement,
+      updateAnnouncement,
+      updateStatus,
+      addComment,
+      categories,
+      addCategory,
+      deleteCategory,
+    }),
+    [
+      announcements,
+      toggleBookmark,
+      markAsRead,
+      markAllAsRead,
+      incrementViews,
+      addAnnouncement,
+      deleteAnnouncement,
+      updateAnnouncement,
+      updateStatus,
+      addComment,
+      categories,
+      addCategory,
+      deleteCategory,
+    ],
+  );
+
   return (
-    <AnnouncementsContext.Provider
-      value={{
-        announcements,
-        toggleBookmark,
-        markAsRead,
-        markAllAsRead,
-        incrementViews,
-        addAnnouncement,
-        deleteAnnouncement,
-        updateAnnouncement,
-        updateStatus,
-        addComment,
-        categories,
-        addCategory,
-        deleteCategory,
-      }}
-    >
+    <AnnouncementsContext.Provider value={value}>
       {children}
     </AnnouncementsContext.Provider>
   );

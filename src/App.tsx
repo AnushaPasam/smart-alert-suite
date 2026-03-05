@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AnnouncementsProvider } from "@/contexts/AnnouncementsContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import { lazy, Suspense, type ReactNode } from "react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -592,17 +591,15 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <ThemeProvider>
-        <AuthProvider>
-          <AnnouncementsProvider>
-            <BrowserRouter>
-              <ErrorBoundary>
-                <AppRoutes />
-              </ErrorBoundary>
-            </BrowserRouter>
-          </AnnouncementsProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <AnnouncementsProvider>
+          <BrowserRouter>
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
+          </BrowserRouter>
+        </AnnouncementsProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

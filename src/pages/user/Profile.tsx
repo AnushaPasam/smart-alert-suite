@@ -36,7 +36,7 @@ export default function UserProfile() {
   });
 
   useEffect(() => {
-    document.title = "Profile – Smart Campus";
+    document.title = "Profile – EduAlert";
     if (user)
       setEditedData({
         name: user.name,
@@ -47,11 +47,11 @@ export default function UserProfile() {
 
   // Generate a mock Student ID from email
   const studentId = useMemo(() => {
-    if (!user?.email) return "SC-2024-001";
+    if (!user?.email) return "EA-2024-001";
     const hash = user.email
       .split("")
       .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return `SC-${2024 + (hash % 5)}-${1000 + (hash % 9000)}`;
+    return `EA-${2024 + (hash % 5)}-${1000 + (hash % 9000)}`;
   }, [user?.email]);
 
   const [prefs, setPrefs] = useState(() => {
@@ -92,6 +92,12 @@ export default function UserProfile() {
     setIsEditing(false);
   };
 
+  const handleLogout = () => {
+    const role = user?.role || "user";
+    logout();
+    navigate(`/${role}/login`);
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -108,11 +114,11 @@ export default function UserProfile() {
                 timestamp: new Date().toISOString(),
               };
               localStorage.setItem(
-                `campus_id_${user?.email}`,
+                `edualert_id_${user?.email}`,
                 JSON.stringify(idData),
               );
               toast.success(
-                "Identity Token successfully stored in your Campus Wallet!",
+                "Identity Token successfully stored in your EduAlert Wallet!",
               );
             }}
             className="flex-1 sm:flex-none h-10 px-4 flex items-center justify-center gap-2 bg-card border border-border rounded-xl text-xs font-bold hover:bg-muted transition-all active:scale-95 shadow-sm"
@@ -160,7 +166,7 @@ export default function UserProfile() {
                   </div>
                   <div>
                     <h3 className="text-sm font-black uppercase tracking-[0.2em] leading-none">
-                      Smart Campus
+                      EduAlert
                     </h3>
                     <p className="text-[10px] font-bold text-primary mt-1 uppercase tracking-widest">
                       Verified Student ID
@@ -282,7 +288,7 @@ export default function UserProfile() {
                 </p>
                 <p className="text-xs text-muted-foreground mt-4 font-medium leading-relaxed">
                   Present this QR code for library entry, event attendance, and
-                  official campus services.
+                  official platform services.
                 </p>
               </div>
             </div>
@@ -302,7 +308,7 @@ export default function UserProfile() {
                 Security & Auth
               </h2>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                Managed by Campus Auth
+                Managed by EduAlert Auth
               </p>
             </div>
           </div>
@@ -314,7 +320,7 @@ export default function UserProfile() {
                 Email
               </label>
               <div className="px-4 py-3 bg-muted/30 border border-border rounded-2xl text-sm font-bold text-foreground transition-all group-hover:border-primary/30">
-                {user?.email || "student@campus.edu"}
+                {user?.email || "student@edualert.com"}
               </div>
             </div>
           </div>
@@ -328,15 +334,11 @@ export default function UserProfile() {
               <ChangePasswordDialog />
             </Suspense>
             <button
-              onClick={() => {
-                const role = user?.role || "user";
-                logout();
-                navigate(`/${role}/login`);
-              }}
+              onClick={handleLogout}
               className="group flex items-center justify-center gap-3 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-destructive bg-destructive/5 hover:bg-destructive/10 border border-destructive/10 transition-all active:scale-95"
             >
               <LogOut className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />{" "}
-              Sign Out of Campus Session
+              Sign Out of Session
             </button>
           </div>
         </div>
@@ -362,7 +364,7 @@ export default function UserProfile() {
               {
                 key: "newAnnouncements",
                 label: "General Announcements",
-                desc: "Campus-wide updates",
+                desc: "Platform-wide updates",
               },
               {
                 key: "urgent",

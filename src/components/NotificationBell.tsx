@@ -69,54 +69,60 @@ export default function NotificationBell({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-xl shadow-campus-elevated z-50 animate-scale-in overflow-hidden">
-          <div className="px-4 py-3 border-b border-border">
-            <h3 className="text-sm font-semibold">Notifications</h3>
-          </div>
-          <div className="max-h-80 overflow-y-auto scrollbar-thin">
-            {recentNotifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
-                You're all caught up 🎉
-              </div>
-            ) : (
-              recentNotifications.map((a) => {
-                const isNew = new Date(a.createdAt).getTime() > lastVisit;
-                return (
-                  <Link
-                    key={a.id}
-                    to={`${basePath}/announcement/${a.id}`}
-                    onClick={() => setOpen(false)}
-                    className={`block px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border last:border-0 ${isNew ? "bg-primary/5" : ""}`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {a.title}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                          {a.description}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs px-1.5 py-0.5 rounded-full bg-campus-olive-light text-campus-olive font-medium">
-                            {a.category}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {formatTime(a.createdAt)}
-                          </span>
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/5 md:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <div className="fixed inset-x-4 top-20 z-50 animate-scale-in overflow-hidden rounded-2xl border border-border bg-card shadow-campus-elevated md:absolute md:right-0 md:top-full md:mt-4 md:w-80 md:rounded-xl">
+            <div className="px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold">Notifications</h3>
+            </div>
+            <div className="max-h-80 overflow-y-auto scrollbar-thin">
+              {recentNotifications.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  You're all caught up 🎉
+                </div>
+              ) : (
+                recentNotifications.map((a) => {
+                  const isNew = new Date(a.createdAt).getTime() > lastVisit;
+                  return (
+                    <Link
+                      key={a.id}
+                      to={`${basePath}/announcement/${a.id}`}
+                      onClick={() => setOpen(false)}
+                      className={`block px-4 py-3 hover:bg-muted/50 transition-colors border-b border-border last:border-0 ${isNew ? "bg-primary/5" : ""}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {a.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                            {a.description}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs px-1.5 py-0.5 rounded-full bg-campus-olive-light text-campus-olive font-medium">
+                              {a.category}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatTime(a.createdAt)}
+                            </span>
+                          </div>
                         </div>
+                        {isNew && (
+                          <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-semibold">
+                            New
+                          </span>
+                        )}
                       </div>
-                      {isNew && (
-                        <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-semibold">
-                          New
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })
-            )}
+                    </Link>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
